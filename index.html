@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linear and Affine Functions - Practice Test</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#5e6b7a;
+      --line:#b9c8d8;
+      --blue:#1f5f99;
+      --blue-dark:#163f66;
+      --blue-soft:#eef6ff;
+      --gold:#d6a92f;
+      --paper:#fffdf8;
+      --white:#ffffff;
+      --shadow:0 18px 45px rgba(31, 73, 112, .14);
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Segoe UI", Arial, Helvetica, sans-serif;
+      color:var(--ink);
+      background:linear-gradient(135deg, #eaf3ff 0%, #f7fbff 45%, #fff8e9 100%);
+    }
+
+    .page{
+      width:min(1120px, 96vw);
+      margin:28px auto;
+      background:var(--paper);
+      min-height:calc(100vh - 56px);
+      border:1px solid rgba(31,95,153,.24);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .top-strip{
+      height:12px;
+      background:linear-gradient(90deg, var(--blue-dark), var(--blue), var(--gold));
+    }
+
+    .screen{ display:none; }
+    .screen.active{ display:block; }
+
+    .cover{
+      min-height:calc(100vh - 68px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding:48px 54px;
+    }
+
+    .test-label{
+      display:inline-block;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.16em;
+      color:var(--blue-dark);
+      text-transform:uppercase;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:9px 16px;
+      border-radius:999px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:clamp(36px,5vw,58px);
+      line-height:1.08;
+      margin:0;
+      color:var(--blue-dark);
+      font-weight:850;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    .title-rule{
+      width:min(520px, 75vw);
+      height:5px;
+      background:linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin:22px auto 34px;
+      border-radius:999px;
+    }
+
+    .name-panel{
+      width:min(820px,100%);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:22px;
+      box-shadow:0 8px 18px rgba(31, 73, 112, .08);
+      margin-bottom:24px;
+    }
+
+    .name-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .field{ text-align:left; }
+
+    label{
+      display:block;
+      font-size:14px;
+      font-weight:800;
+      color:var(--blue-dark);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin-bottom:8px;
+    }
+
+    input{
+      width:100%;
+      padding:13px 14px;
+      font-size:18px;
+      border:1px solid #8ea4ba;
+      border-radius:10px;
+      background:#fff;
+      color:var(--ink);
+      text-transform:uppercase;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(31,95,153,.12);
+    }
+
+    .instruction{
+      width:min(820px,100%);
+      border-left:6px solid var(--gold);
+      padding:18px 22px;
+      font-size:20px;
+      line-height:1.5;
+      margin:0 auto 30px;
+      text-align:left;
+      background:var(--blue-soft);
+      border-radius:12px;
+    }
+
+    .ready{
+      font-size:28px;
+      font-weight:800;
+      color:var(--blue-dark);
+      margin:0 0 18px;
+    }
+
+    button{
+      font-family:"Segoe UI", Arial, Helvetica, sans-serif;
+      cursor:pointer;
+      font-weight:800;
+      transition:.18s ease;
+    }
+
+    .main-btn{
+      padding:13px 30px;
+      font-size:17px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      border-radius:999px;
+      border:1px solid var(--blue-dark);
+      color:#fff;
+      background:linear-gradient(180deg, var(--blue), var(--blue-dark));
+      box-shadow:0 8px 16px rgba(31,95,153,.20);
+    }
+
+    .main-btn:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.04);
+    }
+
+    .secondary-btn{
+      background:#fff;
+      color:var(--blue-dark);
+      border:1px solid var(--blue-dark);
+      box-shadow:none;
+    }
+
+    .test-area{
+      padding:34px 42px 36px;
+    }
+
+    .test-header{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:22px 24px;
+      margin-bottom:24px;
+      box-shadow:0 8px 18px rgba(31, 73, 112, .06);
+      position:sticky;
+      top:0;
+      z-index:3;
+    }
+
+    .test-title{
+      font-size:32px;
+      font-weight:850;
+      text-align:center;
+      text-transform:uppercase;
+      color:var(--blue-dark);
+      margin:0 0 16px;
+      letter-spacing:.025em;
+    }
+
+    .header-rule{
+      height:3px;
+      background:linear-gradient(90deg, var(--blue-dark), var(--gold));
+      border-radius:999px;
+      margin-bottom:18px;
+    }
+
+    .info-line{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:16px;
+      font-size:17px;
+      align-items:center;
+    }
+
+    .progress-pill{
+      border:1px solid var(--line);
+      background:var(--blue-soft);
+      color:var(--blue-dark);
+      border-radius:999px;
+      padding:8px 14px;
+      font-weight:800;
+    }
+
+    .question-list{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .question-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:22px 24px;
+      box-shadow:0 8px 18px rgba(31, 73, 112, .06);
+    }
+
+    .question-top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:flex-start;
+      border-bottom:1px solid var(--line);
+      padding-bottom:12px;
+      margin-bottom:16px;
+    }
+
+    .q-number{
+      color:var(--blue-dark);
+      font-weight:900;
+      font-size:18px;
+      white-space:nowrap;
+    }
+
+    .q-topic{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+      font-weight:800;
+      text-align:right;
+    }
+
+    .question-text{
+      font-size:clamp(20px,2.2vw,27px);
+      line-height:1.38;
+      margin-bottom:16px;
+    }
+
+    .question-body{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+    }
+
+    .question-card.has-graph .question-body{
+      grid-template-columns:minmax(300px, 430px) 1fr;
+      align-items:start;
+    }
+
+    .graph-box{
+      border:1px solid #8ea4ba;
+      border-radius:12px;
+      background:#fff;
+      padding:12px;
+      overflow:hidden;
+    }
+
+    .graph-title{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin-bottom:8px;
+      text-align:center;
+    }
+
+    svg.graph{
+      display:block;
+      width:100%;
+      height:auto;
+      max-height:360px;
+    }
+
+    .choices{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px 14px;
+    }
+
+    .choice{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      border:1px solid #9db0c3;
+      border-radius:12px;
+      padding:13px 14px;
+      min-height:58px;
+      cursor:pointer;
+      background:#fff;
+      font-size:clamp(18px,1.8vw,23px);
+      line-height:1.35;
+    }
+
+    .choice:hover{
+      background:#f4f8fc;
+      border-color:var(--blue);
+    }
+
+    .choice input{
+      width:18px;
+      height:18px;
+      padding:0;
+      margin:3px 0 0 0;
+      flex:0 0 auto;
+      text-transform:none;
+    }
+
+    .choice.selected{
+      background:#eef6ff;
+      outline:3px solid var(--blue-dark);
+    }
+
+    .submit-panel{
+      margin-top:26px;
+      padding:24px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      text-align:center;
+      box-shadow:0 8px 18px rgba(31, 73, 112, .06);
+    }
+
+    .submit-panel p{
+      margin:0 0 16px;
+      font-size:18px;
+      color:var(--muted);
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background:rgba(10,20,35,.42);
+      padding:20px;
+      z-index:10;
+    }
+
+    .modal.show{ display:grid; }
+
+    .result-box{
+      width:min(720px,95vw);
+      background:#fffdf8;
+      border:1px solid var(--line);
+      border-top:10px solid var(--blue-dark);
+      border-radius:18px;
+      padding:34px;
+      text-align:center;
+      color:var(--ink);
+      box-shadow:0 22px 60px rgba(0,0,0,.22);
+    }
+
+    .result-box h2{
+      font-size:32px;
+      color:var(--blue-dark);
+      margin:0 0 8px;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+
+    .result-subtitle{
+      color:var(--muted);
+      margin-bottom:20px;
+      font-size:17px;
+    }
+
+    .result-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin:18px 0 24px;
+      text-align:left;
+    }
+
+    .result-item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .result-label{
+      font-size:13px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:800;
+      letter-spacing:.07em;
+      margin-bottom:5px;
+    }
+
+    .result-value{
+      font-size:22px;
+      font-weight:850;
+      color:var(--ink);
+    }
+
+    .score{
+      font-size:54px;
+      font-weight:900;
+      color:var(--blue-dark);
+      margin:0;
+    }
+
+    .result-message{
+      font-size:19px;
+      line-height:1.45;
+      margin:0 0 24px;
+      color:var(--ink);
+    }
+
+    .result-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:center;
+    }
+
+    #printReport{ display:none; }
+
+    @media print{
+      body{ background:#fff; }
+      body.printing-result .page,
+      body.printing-result .modal{ display:none !important; }
+      body.printing-result #printReport{ display:block !important; }
+
+      #printReport{
+        padding:30px;
+        color:#000;
+        font-family:Arial, Helvetica, sans-serif;
+      }
+
+      .print-sheet{
+        border:2px solid #000;
+        padding:26px;
+      }
+
+      .print-title{
+        text-align:center;
+        font-size:28px;
+        font-weight:800;
+        text-transform:uppercase;
+        margin-bottom:6px;
+      }
+
+      .print-subtitle{
+        text-align:center;
+        font-size:16px;
+        margin-bottom:24px;
+      }
+
+      .print-info{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+        margin-bottom:22px;
+        font-size:16px;
+      }
+
+      .print-info div{
+        border-bottom:1px solid #000;
+        padding:8px 0;
+      }
+
+      .print-score{
+        text-align:center;
+        border:2px solid #000;
+        padding:18px;
+        font-size:30px;
+        font-weight:800;
+        margin-bottom:22px;
+      }
+
+      .print-answers{
+        display:grid;
+        grid-template-columns:repeat(3, 1fr);
+        gap:8px 18px;
+        font-size:14px;
+      }
+
+      .print-answer{
+        border-bottom:1px solid #999;
+        padding:5px 0;
+      }
+    }
+
+    @media(max-width:900px){
+      .page{
+        width:96vw;
+        margin:16px auto;
+        border-radius:14px;
+      }
+
+      .cover,
+      .test-area{
+        padding:24px 18px;
+      }
+
+      .name-row,
+      .info-line,
+      .question-card.has-graph .question-body,
+      .choices,
+      .result-grid{
+        grid-template-columns:1fr;
+      }
+
+      .test-header{
+        position:static;
+      }
+
+      .test-title{
+        font-size:25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="top-strip"></div>
+
+    <section id="coverScreen" class="screen active">
+      <div class="cover">
+        <div class="test-label">Interactive Practice Test</div>
+        <h1>Linear and Affine Functions</h1>
+        <div class="title-rule"></div>
+
+        <div class="name-panel">
+          <div class="name-row">
+            <div class="field">
+              <label for="firstName">First Name</label>
+              <input id="firstName" type="text" autocomplete="off" placeholder="Enter first name">
+            </div>
+
+            <div class="field">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" type="text" autocomplete="off" placeholder="Enter last name">
+            </div>
+          </div>
+        </div>
+
+        <div class="instruction">
+          This is a practice test consisting of <strong>30 questions</strong>.
+          Results will be revealed once the test is completed.
+        </div>
+
+        <div class="ready">Ready To Start?</div>
+        <button id="startBtn" class="main-btn">Start Test</button>
+      </div>
+    </section>
+
+    <section id="testScreen" class="screen">
+      <div class="test-area">
+        <div class="test-header">
+          <div class="test-title">Linear and Affine Functions</div>
+          <div class="header-rule"></div>
+          <div class="info-line">
+            <div id="studentName">Name: ______________________________</div>
+            <div id="progressText" class="progress-pill">0 of 30 answered</div>
+          </div>
+        </div>
+
+        <div id="questionList" class="question-list"></div>
+
+        <div class="submit-panel">
+          <p>Check that all questions are answered before submitting.</p>
+          <button id="submitBtn" class="main-btn">Submit Test</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="resultModal" class="modal">
+    <div class="result-box">
+      <h2>Practice Test Completed</h2>
+      <div class="result-subtitle">Final result report</div>
+
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="result-label">Student</div>
+          <div id="finalName" class="result-value"></div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Test</div>
+          <div class="result-value">Linear and Affine Functions</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Score</div>
+          <div id="scoreText" class="score"></div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Percentage</div>
+          <div id="percentText" class="result-value"></div>
+        </div>
+      </div>
+
+      <div id="resultMessage" class="result-message"></div>
+      <div id="saveStatus" class="result-message" style="font-size:15px; margin-top:-12px;"></div>
+
+      <div class="result-actions">
+        <button id="printBtn" class="main-btn">Print My Result</button>
+        <button id="tryAgainBtn" class="main-btn secondary-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="printReport"></section>
+
+  <script>
+    function uniquePoints(points){
+      const out = [];
+      points.forEach(p => {
+        const exists = out.some(q => Math.abs(q.x - p.x) < 1e-6 && Math.abs(q.y - p.y) < 1e-6);
+        if(!exists){ out.push(p); }
+      });
+      return out;
+    }
+
+    function lineEndpoints(m, b){
+      const pts = [];
+      const min = -5, max = 5;
+
+      const yLeft = m * min + b;
+      if(yLeft >= min && yLeft <= max) pts.push({x:min, y:yLeft});
+
+      const yRight = m * max + b;
+      if(yRight >= min && yRight <= max) pts.push({x:max, y:yRight});
+
+      if(m !== 0){
+        const xBottom = (min - b) / m;
+        if(xBottom >= min && xBottom <= max) pts.push({x:xBottom, y:min});
+
+        const xTop = (max - b) / m;
+        if(xTop >= min && xTop <= max) pts.push({x:xTop, y:max});
+      }
+
+      const uniq = uniquePoints(pts);
+      if(uniq.length >= 2) return [uniq[0], uniq[1]];
+      return [{x:min, y:yLeft}, {x:max, y:yRight}];
+    }
+
+    function coordToPx(x, y){
+      const left = 50;
+      const top = 30;
+      const unit = 26;
+      return {
+        px: left + (x + 5) * unit,
+        py: top + (5 - y) * unit
+      };
+    }
+
+    function graphSvg(spec){
+      const left = 50, top = 30, size = 260, unit = 26;
+      let lineMarkup = "";
+
+      if(spec.kind === "line"){
+        const [p1, p2] = lineEndpoints(spec.m, spec.b);
+        const a = coordToPx(p1.x, p1.y);
+        const b = coordToPx(p2.x, p2.y);
+        lineMarkup = `<line x1="${a.px}" y1="${a.py}" x2="${b.px}" y2="${b.py}" stroke="#163f66" stroke-width="2.4" stroke-linecap="round"/>`;
+      } else if(spec.kind === "multiLine"){
+        const colors = ["#163f66", "#9b6a00", "#6f3f8f", "#2f6f4f"];
+        lineMarkup = spec.lines.map((ln, idx) => {
+          const [p1, p2] = lineEndpoints(ln.m, 0);
+          const a = coordToPx(p1.x, p1.y);
+          const b = coordToPx(p2.x, p2.y);
+          const labelPoint = coordToPx(ln.labelX, ln.m * ln.labelX);
+          return `
+            <line x1="${a.px}" y1="${a.py}" x2="${b.px}" y2="${b.py}" stroke="${colors[idx % colors.length]}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${labelPoint.px}" cy="${labelPoint.py}" r="10" fill="#ffffff" stroke="${colors[idx % colors.length]}" stroke-width="2"/>
+            <text x="${labelPoint.px}" y="${labelPoint.py + 4}" text-anchor="middle" font-size="12" fill="${colors[idx % colors.length]}" font-weight="900">${ln.label}</text>
+          `;
+        }).join("");
+      } else if(spec.kind === "horizontal"){
+        const a = coordToPx(-5, spec.y);
+        const b = coordToPx(5, spec.y);
+        lineMarkup = `<line x1="${a.px}" y1="${a.py}" x2="${b.px}" y2="${b.py}" stroke="#163f66" stroke-width="2.4" stroke-linecap="round"/>`;
+      } else if(spec.kind === "vertical"){
+        const a = coordToPx(spec.x, -5);
+        const b = coordToPx(spec.x, 5);
+        lineMarkup = `<line x1="${a.px}" y1="${a.py}" x2="${b.px}" y2="${b.py}" stroke="#163f66" stroke-width="2.4" stroke-linecap="round"/>`;
+      }
+
+      let gridLines = "";
+      let labels = "";
+
+      for(let i = -5; i <= 5; i++){
+        const x = left + (i + 5) * unit;
+        const y = top + (5 - i) * unit;
+        gridLines += `<line x1="${x}" y1="${top}" x2="${x}" y2="${top + size}" stroke="#b2beca" stroke-width="1.3"/>`;
+        gridLines += `<line x1="${left}" y1="${y}" x2="${left + size}" y2="${y}" stroke="#b2beca" stroke-width="1.3"/>`;
+
+        labels += `<text x="${x}" y="${top + size + 18}" text-anchor="middle" font-size="10.5" fill="#314257">${i}</text>`;
+        if(i !== 0){
+          labels += `<text x="${left - 14}" y="${y + 3.5}" text-anchor="middle" font-size="10.5" fill="#314257">${i}</text>`;
+        }
+      }
+
+      return `
+        <div class="graph-box">
+          <div class="graph-title">Coordinate Plane</div>
+          <svg class="graph" viewBox="0 0 360 330" aria-label="coordinate graph">
+            <rect x="${left}" y="${top}" width="${size}" height="${size}" fill="#ffffff" stroke="#7c8ea1" stroke-width="1.8"/>
+            ${gridLines}
+            <line x1="${left}" y1="${top + 5 * unit}" x2="${left + size}" y2="${top + 5 * unit}" stroke="#172033" stroke-width="2.2"/>
+            <line x1="${left + 5 * unit}" y1="${top}" x2="${left + 5 * unit}" y2="${top + size}" stroke="#172033" stroke-width="2.2"/>
+            ${lineMarkup}
+            ${labels}
+            <text x="${left + size + 14}" y="${top + 5 * unit + 4}" font-size="13" fill="#172033" font-weight="700">x</text>
+            <text x="${left + 5 * unit + 6}" y="${top - 8}" font-size="13" fill="#172033" font-weight="700">y</text>
+            <text x="${left + 5 * unit + 6}" y="${top + 5 * unit + 16}" font-size="10.5" fill="#172033">0</text>
+          </svg>
+        </div>
+      `;
+    }
+
+
+    /* ==========================================================
+       SUPABASE SETTINGS
+       Replace the three values below with your own Supabase details.
+
+       1. SUPABASE_URL
+          Example: "https://abcdefghijk.supabase.co"
+
+       2. SUPABASE_ANON_KEY
+          Use your public anon key from Supabase:
+          Project Settings → API → Project API keys → anon public
+
+       3. SUPABASE_TABLE
+          Suggested table name: linear_affine_results
+
+       Suggested Supabase table columns:
+
+       id                 uuid, primary key, default: gen_random_uuid()
+       created_at          timestamptz, default: now()
+       first_name          text
+       last_name           text
+       student_name        text
+       test_title          text
+       attempt             int4
+       score               int4
+       total_questions     int4
+       percentage          int4
+       answers             jsonb
+       completed_at        timestamptz
+
+       SQL you can run in Supabase SQL Editor:
+
+       create table if not exists linear_affine_results (
+         id uuid primary key default gen_random_uuid(),
+         created_at timestamptz default now(),
+         first_name text,
+         last_name text,
+         student_name text,
+         test_title text,
+         attempt int4,
+         score int4,
+         total_questions int4,
+         percentage int4,
+         answers jsonb,
+         completed_at timestamptz
+       );
+
+       alter table linear_affine_results enable row level security;
+
+       create policy "Allow public insert for practice test"
+       on linear_affine_results
+       for insert
+       to anon
+       with check (true);
+
+       ========================================================== */
+
+    const SUPABASE_URL = "https://fpqmmpjcreofyujkfrda.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_PvlttSZZTobD3qcfb8-s8Q_elIOLyn0";
+    const SUPABASE_TABLE = "linear_affine_results";
+
+    const supabaseEnabled =
+      SUPABASE_URL !== "PASTE_YOUR_SUPABASE_URL_HERE" &&
+      SUPABASE_ANON_KEY !== "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+    const supabaseClient = supabaseEnabled
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
+    async function saveResultToSupabase(){
+      if(!supabaseEnabled || !supabaseClient){
+        console.log("Supabase is not connected yet. Add your URL and anon key in the script.");
+        return { saved:false, reason:"Supabase not configured" };
+      }
+
+      const answerPayload = testQuestions.map((item, index) => {
+        const studentAnswer = answers[index];
+        return {
+          question_number: index + 1,
+          topic: item.topic,
+          question: item.q,
+          selected_answer: Array.isArray(studentAnswer)
+            ? studentAnswer.map(letterFromIndex)
+            : letterFromIndex(studentAnswer),
+          correct_answer: Array.isArray(item.a)
+            ? item.a.map(letterFromIndex)
+            : letterFromIndex(item.a),
+          is_correct: isCorrectAnswer(studentAnswer, item.a)
+        };
+      });
+
+      const row = {
+        first_name: firstName,
+        last_name: lastName,
+        student_name: `${firstName} ${lastName}`,
+        test_title: "Linear and Affine Functions",
+        attempt: currentAttempt,
+        score: latestScore,
+        total_questions: testQuestions.length,
+        percentage: latestPercent,
+        answers: answerPayload,
+        completed_at: new Date().toISOString()
+      };
+
+      const { error } = await supabaseClient
+        .from(SUPABASE_TABLE)
+        .insert([row]);
+
+      if(error){
+        console.error("Supabase save error:", error);
+        return { saved:false, reason:error.message };
+      }
+
+      return { saved:true };
+    }
+
+    function choiceSet(correct, wrongs){
+      return {
+        c:[correct, ...wrongs],
+        a:0
+      };
+    }
+
+    function makeQuestionSet(attempt){
+      const data = {
+        1:{
+          q2m:-4, q3m:5, q3x:4, q4m:-3, q4b:1, q5m:-3, q5b:10, q5x:-3,
+          q7m:-2, q7b:9, q8m:-0.5, q8b:3, q9start:10, q9rate:4,
+          q10m:3, q10b:2, q11m:-4, q11b:1, q12m:"-\\frac{2}{3}", q12b:5,
+          q13m:1.5, q13b:-2, q14p1:"(1,2)", q14p2:"(4,8)", q14ans:2,
+          q16m:-3, q16b:1, q17m:2, q17b:4, q18m:2, q18b:5,
+          q22m:2, q22b:-3, q23m:1, q23b:1, q24m:"\\frac{3}{4}", q24b:-2,
+          q25m:-1, q25b:-1, q26m:-1, q26b:2, q29m:2, q29b:1, q30target:"\\frac{1}{2}"
+        },
+        2:{
+          q2m:6, q3m:4, q3x:7, q4m:2, q4b:-1, q5m:4, q5b:-6, q5x:-2,
+          q7m:3, q7b:-5, q8m:2, q8b:-1, q9start:8, q9rate:3,
+          q10m:5, q10b:-2, q11m:-3, q11b:4, q12m:"\\frac{3}{5}", q12b:-1,
+          q13m:-2, q13b:3, q14p1:"(2,1)", q14p2:"(5,7)", q14ans:2,
+          q16m:2, q16b:-1, q17m:-3, q17b:2, q18m:-1, q18b:6,
+          q22m:-2, q22b:5, q23m:-1, q23b:3, q24m:"-\\frac{1}{2}", q24b:4,
+          q25m:1, q25b:-2, q26m:2, q26b:-1, q29m:-1, q29b:4, q30target:"2"
+        },
+        3:{
+          q2m:-7, q3m:6, q3x:3, q4m:-1, q4b:4, q5m:-2, q5b:8, q5x:-4,
+          q7m:-5, q7b:2, q8m:1, q8b:-4, q9start:12, q9rate:5,
+          q10m:-2, q10b:6, q11m:4, q11b:-3, q12m:"-\\frac{4}{5}", q12b:2,
+          q13m:0.5, q13b:-3, q14p1:"(-1,3)", q14p2:"(3,5)", q14ans:"\\frac{1}{2}",
+          q16m:-2, q16b:5, q17m:4, q17b:-2, q18m:3, q18b:-4,
+          q22m:3, q22b:-4, q23m:2, q23b:0, q24m:"\\frac{2}{3}", q24b:1,
+          q25m:-2, q25b:3, q26m:-1, q26b:-3, q29m:1, q29b:-2, q30target:"-\\frac{1}{2}"
+        }
+      }[attempt];
+
+      function latexLine(m, b){
+        const mText = typeof m === "number" ? String(m) : m;
+        if(b === 0) return `\\(y=${mText}x\\)`;
+        if(b > 0) return `\\(y=${mText}x+${b}\\)`;
+        return `\\(y=${mText}x${b}\\)`;
+      }
+
+      function graphM(m){
+        if(m === "\\frac{3}{4}") return 0.75;
+        if(m === "-\\frac{1}{2}") return -0.5;
+        if(m === "\\frac{2}{3}") return 2/3;
+        if(m === "-\\frac{2}{3}") return -2/3;
+        if(m === "\\frac{3}{5}") return 0.6;
+        if(m === "-\\frac{4}{5}") return -0.8;
+        if(m === "\\frac{1}{2}") return 0.5;
+        if(m === "-\\frac{1}{2}") return -0.5;
+        return m;
+      }
+
+      const q5Value = data.q5m * data.q5x + data.q5b;
+      const q3Value = data.q3m * data.q3x;
+      const q9Text = `\\(A=${data.q9rate}t+${data.q9start}\\)`;
+      const q10Correct = latexLine(data.q10m, data.q10b).replace("\\(y=", "").replace("\\)", "");
+      const q11Correct = latexLine(data.q11m, data.q11b).replace("\\(y=", "").replace("\\)", "");
+
+      return [
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:-1, b:2},
+          c:["\\(y=-x+2\\)","\\(y=x+2\\)","\\(y=-x-2\\)","\\(y=2x+2\\)"],
+          a:0
+        },
+        {
+          topic:"Lineal Function",
+          q:"Which function is lineal?",
+          c:[`\\(y=${data.q2m}x\\)`,"\\(y=x+3\\)","\\(y=x^2\\)","\\(y=\\frac{4}{x}\\)"],
+          a:0
+        },
+        {
+          topic:"Value",
+          q:`For \\(y=${data.q3m}x\\), find \\(y\\) when \\(x=${data.q3x}\\).`,
+          c:[`\\(${data.q3m + data.q3x}\\)`,`\\(${q3Value}\\)`,`\\(${Math.abs(data.q3m - data.q3x)}\\)`,`\\(${data.q3m}${data.q3x}\\)`],
+          a:1
+        },
+        {
+          topic:"Graph Slope",
+          q:"The graph shows \\(f(x)=mx+b\\). Find the slope.",
+          graph:{kind:"line", m:data.q4m, b:data.q4b},
+          c:[`\\(${data.q4m}\\)`,`\\(${data.q4b}\\)`,`\\(${-data.q4m}\\)`,`\\(${-data.q4b}\\)`],
+          a:0
+        },
+        {
+          topic:"Function Value",
+          q:`Given \\(f(x)=${data.q5m}x${data.q5b >= 0 ? "+" + data.q5b : data.q5b}\\), find \\(f(${data.q5x})\\).`,
+          c:[`\\(${q5Value - 6}\\)`,`\\(${q5Value + 3}\\)`,`\\(${q5Value - 2}\\)`,`\\(${q5Value}\\)`],
+          a:3
+        },
+        {
+          topic:"Graph Lineal",
+          q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
+          graph:{kind:"multiLine", lines:[
+            {label:"A", m:1, labelX:4},
+            {label:"B", m:0.5, labelX:4},
+            {label:"C", m:-0.5, labelX:-4},
+            {label:"D", m:2, labelX:2}
+          ]},
+          c:["Line A","Line B","Line C","Line D"],
+          a: data.q30target === "2" ? 3 : (data.q30target === "-\\frac{1}{2}" ? 2 : 1)
+        },
+        {
+          topic:"Slope",
+          q:`Find the slope of \\(y=${data.q7m}x${data.q7b >= 0 ? "+" + data.q7b : data.q7b}\\).`,
+          c:[`\\(${data.q7m}\\)`,`\\(${-data.q7m}\\)`,`\\(${data.q7b}\\)`,`\\(${-data.q7b}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:graphM(data.q8m), b:data.q8b},
+          c:[latexLine(data.q8m, data.q8b), latexLine(-graphM(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(2, data.q8b)],
+          a:0
+        },
+        {
+          topic:"Model",
+          q:`A tank has \\(${data.q9start}\\) liters. It fills \\(${data.q9rate}\\) liters each minute. Which equation gives the amount \\(A\\)?`,
+          c:[`\\(A=${data.q9start}t+${data.q9rate}\\)`,q9Text,`\\(A=${data.q9start + data.q9rate}t\\)`,`\\(A=\\frac{${data.q9start}}{${data.q9rate}}t\\)`],
+          a:1
+        },
+        {
+          topic:"Equation",
+          q:`Which equation has slope \\(${data.q10m}\\) and \\(y\\)-intercept \\(${data.q10b}\\)?`,
+          c:[latexLine(data.q10b, data.q10m), latexLine(data.q10m, data.q10b), latexLine(-data.q10m, data.q10b), latexLine(data.q10m, -data.q10b)],
+          a:1
+        },
+        {
+          topic:"Equation",
+          q:`Which equation has slope \\(${data.q11m}\\) and \\(y\\)-intercept \\(${data.q11b}\\)?`,
+          c:[latexLine(-data.q11m, data.q11b), latexLine(data.q11m, data.q11b), latexLine(data.q11b, data.q11m), latexLine(-1, Math.abs(data.q11m))],
+          a:1
+        },
+        {
+          topic:"Equation",
+          q:`Which equation has slope \\(${data.q12m}\\) and \\(y\\)-intercept \\(${data.q12b}\\)?`,
+          c:[latexLine(data.q12m, data.q12b), latexLine(data.q12m.replace("-", ""), data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:graphM(data.q13m), b:data.q13b},
+          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === 1.5 ? "\\frac{2}{3}" : data.q13m === -2 ? "2" : "-\\frac{1}{2}", data.q13b), latexLine(-graphM(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
+          a:0
+        },
+        {
+          topic:"Slope",
+          q:`Find the slope of the line through \\(${data.q14p1}\\) and \\(${data.q14p2}\\).`,
+          c:[`\\(${data.q14ans}\\)`,"\\(3\\)","\\(6\\)","\\(-2\\)"],
+          a:0
+        },
+        {
+          topic:"Find coefficient",
+          q:"If \\(y=ax\\) and \\((3,-12)\\) is on the graph, find \\(a\\).",
+          c:["\\(4\\)","\\(-4\\)","\\(-9\\)","\\(15\\)"],
+          a:1
+        },
+        {
+          topic:"Graph Slope",
+          q:"The graph shows \\(f(x)=mx+b\\). Find the slope.",
+          graph:{kind:"line", m:data.q16m, b:data.q16b},
+          c:[`\\(${data.q16m}\\)`,`\\(${-data.q16m}\\)`,`\\(${data.q16b}\\)`,`\\(${-data.q16b}\\)`],
+          a:0
+        },
+        {
+          topic:"Concept",
+          q:`For \\(y=${data.q17m}x${data.q17b >= 0 ? "+" + data.q17b : data.q17b}\\), where does the graph cross the \\(y\\)-axis?`,
+          c:[`\\((${data.q17b},0)\\)`,`\\((0,${data.q17m})\\)`,`\\((0,${data.q17b})\\)`,`\\((${data.q17m},${data.q17b})\\)`],
+          a:2
+        },
+        {
+          topic:"Function Value",
+          q:"Given \\(f(x)=-3x+10\\), find \\(f(-3)\\).",
+          c:["\\(-19\\)","\\(1\\)","\\(13\\)","\\(19\\)"],
+          a:3
+        },
+        {
+          topic:"Affine Functions",
+          q:"Check all equations that are affine and not lineal. Here, affine means \\(y=ax+b\\), where \\(a\\ne0\\) and \\(b\\ne0\\).",
+          multi:true,
+          c:[
+            "\\(y=2x+3\\)",
+            "\\(y=-x+5\\)",
+            "\\(y=\\frac{1}{2}x-4\\)",
+            "\\(y=4x\\)",
+            "\\(y=x^2+1\\)",
+            "\\(y=\\frac{5}{x}\\)",
+            "\\(y=-4x-7\\)",
+            "\\(y=3\\)",
+            "\\(x=4\\)",
+            "\\(y=0.25x+1\\)"
+          ],
+          a:[0,1,2,6,9]
+        },
+        {
+          topic:"Concept",
+          q:"Which graph always passes through \\((0,0)\\)?",
+          c:["\\(y=ax\\)","\\(y=ax+b\\), where \\(b\\ne0\\)","\\(y=x^2+1\\)","\\(y=\\frac{a}{x}\\)"],
+          a:0
+        },
+        {
+          topic:"Model",
+          q:"A notebook costs \\(\\$4\\). Which equation gives the cost \\(C\\) for \\(n\\) notebooks?",
+          c:["\\(C=4n\\)","\\(C=n+4\\)","\\(C=4-n\\)","\\(C=\\frac{n}{4}\\)"],
+          a:0
+        },
+        {
+          topic:"Graph Slope",
+          q:"Find the slope of the line shown.",
+          graph:{kind:"line", m:data.q22m, b:data.q22b},
+          c:[`\\(${data.q22m}\\)`,`\\(${1/data.q22m}\\)`,`\\(${-data.q22m}\\)`,`\\(${-1/data.q22m}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:data.q23m, b:data.q23b},
+          c:[latexLine(data.q23m, data.q23b), latexLine(data.q23m, -data.q23b), latexLine(-data.q23m, data.q23b), latexLine(data.q23m + 1, data.q23b)],
+          a:0
+        },
+        {
+          topic:"Equation",
+          q:`Which equation has slope \\(${data.q24m}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
+          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{1}{2}", data.q24b), latexLine("-" + data.q24m.replace("-", ""), data.q24b), latexLine(data.q24m, -data.q24b)],
+          a:0
+        },
+        {
+          topic:"Graph Slope",
+          q:"Find the slope of the line shown.",
+          graph:{kind:"line", m:data.q25m, b:data.q25b},
+          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${data.q25b}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:data.q26m, b:data.q26b},
+          c:[latexLine(data.q26m, data.q26b), latexLine(-data.q26m, data.q26b), latexLine(data.q26m, -data.q26b), latexLine(data.q26m + 1, data.q26b)],
+          a:0
+        },
+        {
+          topic:"Point",
+          q:"Which point is on the graph of \\(y=3x\\)?",
+          c:["\\((2,6)\\)","\\((2,5)\\)","\\((3,2)\\)","\\((6,2)\\)"],
+          a:0
+        },
+        {
+          topic:"Model",
+          q:"A taxi costs \\(\\$3\\) to start and \\(\\$2\\) per kilometer. Which equation gives the cost \\(C\\)?",
+          c:["\\(C=3x+2\\)","\\(C=2x+3\\)","\\(C=5x\\)","\\(C=\\frac{3}{2}x\\)"],
+          a:1
+        },
+        {
+          topic:"Graph Details",
+          q:"Find the slope and the \\(y\\)-intercept of the line shown.",
+          graph:{kind:"line", m:data.q29m, b:data.q29b},
+          c:[`Slope \\(=${data.q29m}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29b}\\), \\(y\\)-intercept \\(=${data.q29m}\\)`,`Slope \\(=${-data.q29m}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29m}\\), \\(y\\)-intercept \\(=${-data.q29b}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Lineal",
+          q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
+          graph:{kind:"multiLine", lines:[
+            {label:"A", m:1, labelX:4},
+            {label:"B", m:0.5, labelX:4},
+            {label:"C", m:-0.5, labelX:-4},
+            {label:"D", m:2, labelX:2}
+          ]},
+          c:["Line A","Line B","Line C","Line D"],
+          a: data.q30target === "2" ? 3 : (data.q30target === "-\\frac{1}{2}" ? 2 : 1)
+        }
+      ];
+    }
+
+    function seededShuffle(array){
+      let seed = 20260622;
+      const arr = array.map((item, originalIndex) => ({...item, originalIndex}));
+      function random(){
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      }
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    const maxAttempts = 3;
+    let currentAttempt = 1;
+    let testQuestions = makeQuestionSet(currentAttempt);
+    let answers = Array(testQuestions.length).fill(null);
+    let firstName = "";
+    let lastName = "";
+    let latestScore = 0;
+    let latestPercent = 0;
+
+    const coverScreen = document.getElementById("coverScreen");
+    const testScreen = document.getElementById("testScreen");
+    const startBtn = document.getElementById("startBtn");
+    const firstInput = document.getElementById("firstName");
+    const lastInput = document.getElementById("lastName");
+    const studentName = document.getElementById("studentName");
+    const progressText = document.getElementById("progressText");
+    const questionList = document.getElementById("questionList");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultModal = document.getElementById("resultModal");
+    const scoreText = document.getElementById("scoreText");
+    const percentText = document.getElementById("percentText");
+    const finalName = document.getElementById("finalName");
+    const resultMessage = document.getElementById("resultMessage");
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
+    const printBtn = document.getElementById("printBtn");
+    const printReport = document.getElementById("printReport");
+    const saveStatus = document.getElementById("saveStatus");
+
+    function renderQuestions(){
+      questionList.innerHTML = "";
+
+      testQuestions.forEach((item, qIndex) => {
+        const card = document.createElement("div");
+        card.className = "question-card" + (item.graph ? " has-graph" : "");
+        card.id = `question-${qIndex + 1}`;
+
+        const graphHTML = item.graph ? graphSvg(item.graph) : "";
+
+        const choicesHTML = item.c.map((choice, cIndex) => {
+          const isMulti = item.multi === true;
+          const isChecked = isMulti
+            ? Array.isArray(answers[qIndex]) && answers[qIndex].includes(cIndex)
+            : answers[qIndex] === cIndex;
+          return `
+            <label class="choice ${isChecked ? "selected" : ""}">
+              <input type="${isMulti ? "checkbox" : "radio"}" name="q${qIndex}" value="${cIndex}" ${isChecked ? "checked" : ""}>
+              <span>${String.fromCharCode(65 + cIndex)}. ${choice}</span>
+            </label>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <div class="question-top">
+            <div class="q-number">Question ${qIndex + 1}</div>
+            <div class="q-topic">${item.topic}</div>
+          </div>
+          <div class="question-text">${item.q}</div>
+          <div class="question-body">
+            ${graphHTML}
+            <div class="choices">${choicesHTML}</div>
+          </div>
+        `;
+
+        questionList.appendChild(card);
+      });
+
+      document.querySelectorAll(".choice input").forEach(input => {
+        input.addEventListener("change", function(){
+          const qIndex = Number(this.name.replace("q",""));
+          const value = Number(this.value);
+
+          if(testQuestions[qIndex].multi === true){
+            if(!Array.isArray(answers[qIndex])) answers[qIndex] = [];
+            if(this.checked){
+              if(!answers[qIndex].includes(value)) answers[qIndex].push(value);
+            }else{
+              answers[qIndex] = answers[qIndex].filter(v => v !== value);
+              if(answers[qIndex].length === 0) answers[qIndex] = null;
+            }
+          }else{
+            answers[qIndex] = value;
+          }
+
+          updateSelections();
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+
+      if(window.MathJax){
+        MathJax.typesetPromise();
+      }
+    }
+
+    function updateSelections(){
+      document.querySelectorAll(".question-card").forEach((card, qIndex) => {
+        const isMulti = testQuestions[qIndex].multi === true;
+        card.querySelectorAll(".choice").forEach((choice, cIndex) => {
+          const selected = isMulti
+            ? Array.isArray(answers[qIndex]) && answers[qIndex].includes(cIndex)
+            : answers[qIndex] === cIndex;
+          choice.classList.toggle("selected", selected);
+        });
+      });
+    }
+
+    function updateProgress(){
+      const answered = answers.filter(a => a !== null).length;
+      progressText.textContent = `${answered} of ${testQuestions.length} answered`;
+    }
+
+    function letterFromIndex(index){
+      return ["A","B","C","D"][index] || "";
+    }
+
+    function buildPrintReport(){
+      const today = new Date();
+      const dateText = today.toLocaleDateString();
+
+      const answerRows = answers.map((ans, i) => {
+        const shown = Array.isArray(ans) ? ans.map(letterFromIndex).join(", ") : letterFromIndex(ans);
+        return `<div class="print-answer">Question ${i + 1}: ${shown}</div>`;
+      }).join("");
+
+      printReport.innerHTML = `
+        <div class="print-sheet">
+          <div class="print-title">Linear and Affine Functions</div>
+          <div class="print-subtitle">Practice Test Result Report</div>
+
+          <div class="print-info">
+            <div><strong>Student:</strong> ${firstName} ${lastName}</div>
+            <div><strong>Date:</strong> ${dateText}</div>
+            <div><strong>Attempt:</strong> ${currentAttempt} of ${maxAttempts}</div>
+            <div><strong>Score:</strong> ${latestScore} / ${testQuestions.length}</div>
+            <div><strong>Percentage:</strong> ${latestPercent}%</div>
+          </div>
+
+          <div class="print-score">Final Score: ${latestScore} / ${testQuestions.length}</div>
+
+          <h3>Student Selected Answers</h3>
+          <div class="print-answers">${answerRows}</div>
+        </div>
+      `;
+    }
+
+    function isCorrectAnswer(ans, correct){
+      if(Array.isArray(correct)){
+        if(!Array.isArray(ans)) return false;
+        const a = [...ans].sort((x,y) => x-y).join(",");
+        const c = [...correct].sort((x,y) => x-y).join(",");
+        return a === c;
+      }
+      return ans === correct;
+    }
+
+    async function showResults(){
+      latestScore = answers.reduce((total, ans, i) => total + (isCorrectAnswer(ans, testQuestions[i].a) ? 1 : 0), 0);
+      latestPercent = Math.round((latestScore / testQuestions.length) * 100);
+
+      finalName.textContent = `${firstName} ${lastName}`;
+      scoreText.textContent = `${latestScore} / ${testQuestions.length}`;
+      percentText.textContent = `${latestPercent}%`;
+      resultMessage.textContent = currentAttempt < maxAttempts ? `Results are shown only after completing the practice test. You may print this result report or try again. Attempts left: ${maxAttempts - currentAttempt}.` : "This was your third attempt. You may print this final result report for submission.";
+      tryAgainBtn.style.display = currentAttempt < maxAttempts ? "inline-block" : "none";
+      buildPrintReport();
+      resultModal.classList.add("show");
+
+      saveStatus.textContent = supabaseEnabled
+        ? "Saving result..."
+        : "Supabase is not connected yet. Add your Supabase URL and anon key in the script.";
+
+      const saveResult = await saveResultToSupabase();
+
+      if(saveResult.saved){
+        saveStatus.textContent = "Result saved to Supabase.";
+      }else if(supabaseEnabled){
+        saveStatus.textContent = "Result was not saved. Check Supabase settings and table columns.";
+      }
+    }
+
+    startBtn.onclick = () => {
+      firstName = firstInput.value.trim().toUpperCase();
+      lastName = lastInput.value.trim().toUpperCase();
+
+      if(!firstName || !lastName){
+        alert("Please enter your first name and last name before starting.");
+        return;
+      }
+
+      studentName.textContent = `Name: ${lastName}, ${firstName} | Attempt ${currentAttempt} of ${maxAttempts}`;
+      coverScreen.classList.remove("active");
+      testScreen.classList.add("active");
+      renderQuestions();
+      window.scrollTo({top:0, behavior:"smooth"});
+    };
+
+    submitBtn.onclick = () => {
+      if(answers.includes(null)){
+        const firstUnanswered = answers.findIndex(a => a === null);
+        alert("Please answer all questions before submitting.");
+        document.getElementById(`question-${firstUnanswered + 1}`).scrollIntoView({behavior:"smooth", block:"center"});
+        return;
+      }
+      showResults();
+    };
+
+    printBtn.onclick = () => {
+      buildPrintReport();
+      document.body.classList.add("printing-result");
+      window.print();
+      setTimeout(() => document.body.classList.remove("printing-result"), 500);
+    };
+
+    tryAgainBtn.onclick = () => {
+      if(currentAttempt >= maxAttempts){
+        return;
+      }
+
+      currentAttempt++;
+      testQuestions = makeQuestionSet(currentAttempt);
+      answers = Array(testQuestions.length).fill(null);
+      studentName.textContent = `Name: ${lastName}, ${firstName} | Attempt ${currentAttempt} of ${maxAttempts}`;
+      resultModal.classList.remove("show");
+      renderQuestions();
+      window.scrollTo({top:0, behavior:"smooth"});
+    };
+  </script>
+</body>
+</html>
