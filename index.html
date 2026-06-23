@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Direct and Inverse Variation - Practice Test</title>
+  <title>Linear and Affine Functions - Practice Test</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -488,62 +488,6 @@
     #printReport{ display:none; }
 
 
-    .mini-table{
-      border-collapse:collapse;
-      margin-top:8px;
-      width:100%;
-      font-size:16px;
-      background:#fff;
-    }
-
-    .mini-table th,
-    .mini-table td{
-      border:1px solid #7c8ea1;
-      padding:5px 8px;
-      text-align:center;
-    }
-
-    .table-label,
-    .graph-choice-label{
-      font-weight:800;
-      color:var(--blue-dark);
-      margin-bottom:5px;
-    }
-
-    .graph-choice{
-      width:100%;
-      text-align:center;
-    }
-
-    .graph-choice svg{
-      width:min(220px,100%);
-      height:auto;
-      display:block;
-      margin:0 auto;
-    }
-
-    .question-extra{
-      margin:12px 0 16px;
-      display:block;
-      width:100%;
-    }
-
-    .question-extra .graph-choice{
-      width:min(260px, 100%);
-      margin:0 auto;
-      padding:10px;
-      border:1px solid #9db0c3;
-      border-radius:12px;
-      background:#ffffff;
-    }
-
-    .question-extra .mini-table{
-      width:min(720px, 100%);
-      margin:10px auto 0;
-      font-size:18px;
-    }
-
-
     .teacher-link{
       margin-top:18px;
       background:#fff;
@@ -794,7 +738,7 @@
     <section id="coverScreen" class="screen active">
       <div class="cover">
         <div class="test-label">Interactive Practice Test</div>
-        <h1>Direct and Inverse Variation</h1>
+        <h1>Linear and Affine Functions</h1>
         <div class="title-rule"></div>
 
         <div class="name-panel">
@@ -830,7 +774,7 @@
     <section id="testScreen" class="screen">
       <div class="test-area">
         <div class="test-header">
-          <div class="test-title">Direct and Inverse Variation</div>
+          <div class="test-title">Linear and Affine Functions</div>
           <div class="header-rule"></div>
           <div class="info-line">
             <div id="studentName">Name: ______________________________</div>
@@ -860,7 +804,7 @@
         </div>
         <div class="result-item">
           <div class="result-label">Test</div>
-          <div class="result-value">Direct and Inverse Variation</div>
+          <div class="result-value">Linear and Affine Functions</div>
         </div>
         <div class="result-item">
           <div class="result-label">Score</div>
@@ -1065,7 +1009,7 @@
           Project Settings → API → Project API keys → anon public
 
        3. SUPABASE_TABLE
-          Suggested table name: direct_inverse_variation_results
+          Suggested table name: linear_affine_results
 
        Suggested Supabase table columns:
 
@@ -1085,7 +1029,7 @@
 
        SQL you can run in Supabase SQL Editor:
 
-       create table if not exists direct_inverse_variation_results (
+       create table if not exists linear_affine_results (
          id uuid primary key default gen_random_uuid(),
          created_at timestamptz default now(),
          first_name text,
@@ -1102,19 +1046,19 @@
        );
 
        -- Use this if your table already existed before the Email field was added.
-       alter table direct_inverse_variation_results
+       alter table linear_affine_results
        add column if not exists student_email text;
 
-       alter table direct_inverse_variation_results enable row level security;
+       alter table linear_affine_results enable row level security;
 
        create policy if not exists "Allow public insert for practice test"
-       on direct_inverse_variation_results
+       on linear_affine_results
        for insert
        to anon
        with check (true);
 
        create policy if not exists "Allow public select for teacher results"
-       on direct_inverse_variation_results
+       on linear_affine_results
        for select
        to anon
        using (true);
@@ -1123,7 +1067,7 @@
 
     const SUPABASE_URL = "https://fpqmmpjcreofyujkfrda.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_PvlttSZZTobD3qcfb8-s8Q_elIOLyn0";
-    const SUPABASE_TABLE = "direct_inverse_variation_results";
+    const SUPABASE_TABLE = "linear_affine_results";
 
     const supabaseEnabled =
       SUPABASE_URL !== "PASTE_YOUR_SUPABASE_URL_HERE" &&
@@ -1160,7 +1104,7 @@
         last_name: lastName,
         student_name: `${firstName} ${lastName}`,
         student_email: schoolEmail,
-        test_title: "Direct and Inverse Variation",
+        test_title: "Linear and Affine Functions",
         attempt: currentAttempt,
         score: latestScore,
         total_questions: testQuestions.length,
@@ -1245,384 +1189,333 @@
     }
 
     function makeQuestionSet(attempt){
-      function directEq(k){
-        if(k === 1) return "\\(y=x\\)";
-        if(k === -1) return "\\(y=-x\\)";
-        return `\\(y=${k}x\\)`;
-      }
-
-      function inverseEq(k){
-        return `\\(y=\\frac{${k}}{x}\\)`;
-      }
-
-      function ratioEq(k){
-        return `\\(\\frac{y}{x}=${k}\\)`;
-      }
-
-      function productEq(k){
-        return `\\(xy=${k}\\)`;
-      }
-
-      function tableHTML(xs, ys){
-        return `<table class="mini-table"><tr><th>\\(x\\)</th>${xs.map(v => `<td>${v}</td>`).join("")}</tr><tr><th>\\(y\\)</th>${ys.map(v => `<td>${v}</td>`).join("")}</tr></table>`;
-      }
-
-      function tableChoice(label, xs, ys){
-        return `<div class="table-choice"><div class="table-label">${label}</div>${tableHTML(xs, ys)}</div>`;
-      }
-
-      function variationEquation(rel, k){
-        return rel === "Direct" ? directEq(k) : inverseEq(k);
-      }
-
-      function solveY(rel, k, x){
-        return rel === "Direct" ? k * x : k / x;
-      }
-
-      function solveX(rel, k, y){
-        return rel === "Direct" ? y / k : k / y;
-      }
-
-      function completeTableHTML(rows){
-        const cells = value => value === null || value === undefined ? "?" : value;
-        return `<table class="mini-table">
-          <tr><th>x</th><th>y</th><th>k</th><th>Relationship</th><th>Equation</th></tr>
-          ${rows.map(r => `<tr>
-            <td>${cells(r.x)}</td>
-            <td>${cells(r.y)}</td>
-            <td>${cells(r.k)}</td>
-            <td>${cells(r.rel)}</td>
-            <td>${r.eq || "?"}</td>
-          </tr>`).join("")}
-        </table>`;
-      }
-
-      function completeTableAnswer(row){
-        const equation = variationEquation(row.rel, row.k);
-        return `\(x=${row.x}\), \(y=${row.y}\), \(k=${row.k}\), ${row.rel}, ${equation}`;
-      }
-
-      function completeTableChoice(row, kind){
-        if(kind === "correct") return completeTableAnswer(row);
-
-        if(kind === "wrongRelationship"){
-          const rel = row.rel === "Direct" ? "Inverse" : "Direct";
-          return `\(x=${row.x}\), \(y=${row.y}\), \(k=${row.k}\), ${rel}, ${variationEquation(rel, row.k)}`;
-        }
-
-        if(kind === "wrongK"){
-          const wrongK = row.rel === "Direct" ? row.x + row.y : Math.abs(row.y - row.x);
-          return `\(x=${row.x}\), \(y=${row.y}\), \(k=${wrongK}\), ${row.rel}, ${variationEquation(row.rel, wrongK)}`;
-        }
-
-        const wrongY = row.y + (row.rel === "Direct" ? row.k : 2);
-        return `\(x=${row.x}\), \(y=${wrongY}\), \(k=${row.k}\), ${row.rel}, ${variationEquation(row.rel, row.k)}`;
-      }
-
-
-      function graphOption(label, kind){
-        const paths = {
-          inverse:`<path d="M35 25 C42 90, 95 130, 165 136" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          direct:`<path d="M25 155 L165 25" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          affine:`<path d="M25 122 L165 55" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          downLine:`<path d="M35 30 L155 150" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          parabola:`<path d="M35 145 C65 40, 125 40, 160 145" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          increasingCurve:`<path d="M25 148 C75 148, 142 105, 160 35" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`,
-          quarterCircle:`<path d="M40 40 C105 35, 150 82, 150 150" fill="none" stroke="#163f66" stroke-width="4" stroke-linecap="round"/>`
-        };
-        return `<div class="graph-choice"><div class="graph-choice-label">${label}</div><svg viewBox="0 0 190 180" aria-label="${label}"><line x1="25" y1="155" x2="170" y2="155" stroke="#172033" stroke-width="3"/><line x1="25" y1="155" x2="25" y2="18" stroke="#172033" stroke-width="3"/><polygon points="170,155 158,149 158,161" fill="#172033"/><polygon points="25,18 19,30 31,30" fill="#172033"/>${paths[kind]}</svg></div>`;
-      }
-
-      const d = {
+      const data = {
         1:{
-          directK:6, directPoint:[4,24], directX:9, directY:54,
-          inverseK:48, inversePoint:[6,8], inverseX:12, inverseY:4,
-          workers:[24,18,36,12], food:[90,20,18,15], recipe:[3,6,12,24], machine:[150,3,12,600], run:[5,35,70,10],
-          tableXs:[2,3,4,6], tableDirect:[8,12,16,24], tableInverse:[24,16,12,8], tableBad:[5,8,13,20],
-          pointD1:[5,35], pointD2:[12,84], pointI1:[4,18], pointI2:[9,8], storage:[80,15,100,12],
-          tableComplete:[
-            {x:3, y:15, k:5, rel:"Direct", eq:"?"},
-            {x:null, y:6, k:24, rel:"Inverse", eq:"?"},
-            {x:8, y:null, k:4, rel:"Direct", eq:"?"},
-            {x:5, y:9, k:null, rel:"Inverse", eq:"?"}
-          ]
+          q2m:-4, q3m:5, q3x:4, q4m:-3, q4b:1, q5m:-3, q5b:10, q5x:-3,
+          q7m:-2, q7b:9, q8m:"-\\frac{1}{2}", q8b:3, q9start:10, q9rate:4,
+          q10p1:"(1,2)", q10p2:"(3,8)", q10ans:3, q11m:-4, q11b:1, q12m:"-\\frac{2}{3}", q12b:5,
+          q13m:"\\frac{3}{2}", q13b:-2, q14p1:"(1,2)", q14p2:"(4,8)", q14ans:2,
+          q16m:-3, q16b:1, q17m:2, q17b:4, q18m:2, q18b:5, q18a:4, q18c:-1,
+          q22m:2, q22b:-3, q23m:1, q23b:1, q24m:"\\frac{3}{4}", q24b:-2,
+          q25m:-1, q25b:-1, q26m:-1, q26b:2, q29m:2, q29b:1, q30target:"\\frac{1}{2}"
         },
         2:{
-          directK:4, directPoint:[7,28], directX:11, directY:44,
-          inverseK:60, inversePoint:[5,12], inverseX:15, inverseY:4,
-          workers:[30,20,50,12], food:[72,25,12,9], recipe:[4,8,16,32], machine:[210,6,18,630], run:[3,27,81,9],
-          tableXs:[3,4,5,6], tableDirect:[12,16,20,24], tableInverse:[20,15,12,10], tableBad:[9,13,18,24],
-          pointD1:[6,30], pointD2:[14,70], pointI1:[3,20], pointI2:[12,5], storage:[120,10,150,8],
-          tableComplete:[
-            {x:4, y:null, k:7, rel:"Direct", eq:"?"},
-            {x:null, y:8, k:40, rel:"Inverse", eq:"?"},
-            {x:6, y:3, k:null, rel:"Inverse", eq:"?"},
-            {x:10, y:20, k:2, rel:"Direct", eq:"?"}
-          ]
+          q2m:6, q3m:4, q3x:7, q4m:2, q4b:-1, q5m:4, q5b:-6, q5x:-2,
+          q7m:3, q7b:-5, q8m:2, q8b:-1, q9start:8, q9rate:3,
+          q10p1:"(2,5)", q10p2:"(6,13)", q10ans:2, q11m:-3, q11b:4, q12m:"\\frac{3}{5}", q12b:-1,
+          q13m:-2, q13b:3, q14p1:"(2,1)", q14p2:"(5,7)", q14ans:2,
+          q16m:2, q16b:-1, q17m:-3, q17b:2, q18m:-1, q18b:6, q18a:-2, q18c:3,
+          q22m:-2, q22b:5, q23m:-1, q23b:3, q24m:"-\\frac{1}{2}", q24b:4,
+          q25m:1, q25b:-2, q26m:2, q26b:-1, q29m:-1, q29b:4, q30target:"2"
         },
         3:{
-          directK:5, directPoint:[6,30], directX:13, directY:65,
-          inverseK:72, inversePoint:[8,9], inverseX:18, inverseY:4,
-          workers:[18,40,30,24], food:[100,12,75,16], recipe:[2,10,10,50], machine:[240,4,15,900], run:[6,48,80,10],
-          tableXs:[2,3,6,9], tableDirect:[10,15,30,45], tableInverse:[36,24,12,8], tableBad:[7,14,20,29],
-          pointD1:[4,22], pointD2:[10,55], pointI1:[6,14], pointI2:[21,4], storage:[60,20,75,16],
-          tableComplete:[
-            {x:null, y:12, k:3, rel:"Direct", eq:"?"},
-            {x:7, y:null, k:42, rel:"Inverse", eq:"?"},
-            {x:9, y:6, k:null, rel:"Inverse", eq:"?"},
-            {x:5, y:20, k:4, rel:"Direct", eq:"?"}
-          ]
+          q2m:-7, q3m:6, q3x:3, q4m:-1, q4b:4, q5m:-2, q5b:8, q5x:-4,
+          q7m:-5, q7b:2, q8m:1, q8b:-4, q9start:12, q9rate:5,
+          q10p1:"(-2,4)", q10p2:"(4,1)", q10ans:"-\\frac{1}{2}", q11m:4, q11b:-3, q12m:"-\\frac{4}{5}", q12b:2,
+          q13m:"\\frac{1}{2}", q13b:-3, q14p1:"(-1,3)", q14p2:"(3,5)", q14ans:"\\frac{1}{2}",
+          q16m:-2, q16b:5, q17m:4, q17b:-2, q18m:3, q18b:-4, q18a:1, q18c:-2,
+          q22m:3, q22b:-4, q23m:2, q23b:0, q24m:"\\frac{2}{3}", q24b:1,
+          q25m:-2, q25b:3, q26m:-1, q26b:-3, q29m:1, q29b:-2, q30target:"-\\frac{1}{2}"
         }
       }[attempt];
 
-      const directK = d.directK;
-      const inverseK = d.inverseK;
-      const directPoint = d.directPoint;
-      const inversePoint = d.inversePoint;
-      const workerAnswer = d.workers[0] * d.workers[1] / d.workers[2];
-      const storageAnswer = d.storage[0] * d.storage[1] / d.storage[2];
-      const foodAnswer = d.food[0] * d.food[2] / (d.food[0] + d.food[1]);
-      const recipeAnswer = d.recipe[1] * d.recipe[2] / d.recipe[0];
-      const machineAnswer = d.machine[0] / d.machine[1] * d.machine[2];
-      const runAnswer = d.run[1] / d.run[0] * d.run[3];
+      function parseFracString(value){
+        if(typeof value !== "string") return null;
+        const clean = value.replace(/\s/g, "");
+        const match = clean.match(/^(-?)\\frac\{(\d+)\}\{(\d+)\}$/);
+        if(!match) return null;
+        const sign = match[1] === "-" ? -1 : 1;
+        return [sign * Number(match[2]), Number(match[3])];
+      }
 
-      const completeRows = d.tableComplete.map(r => {
-        const rel = r.rel;
-        const k = r.k ?? (rel === "Direct" ? r.y / r.x : r.x * r.y);
-        const x = r.x ?? solveX(rel, k, r.y);
-        const y = r.y ?? solveY(rel, k, r.x);
-        return {x, y, k, rel, eq:r.eq};
-      });
+      function fractionParts(value){
+        const map = {
+          "0.5":[1,2], "-0.5":[-1,2],
+          "1.5":[3,2], "-1.5":[-3,2],
+          "0.25":[1,4], "-0.25":[-1,4],
+          "0.75":[3,4], "-0.75":[-3,4],
+          "0.6":[3,5], "-0.6":[-3,5],
+          "0.8":[4,5], "-0.8":[-4,5]
+        };
+        return map[String(value)] || null;
+      }
 
-      const completeTarget1 = completeRows[0];
-      const completeTarget2 = completeRows[1];
-      const completeTarget3 = completeRows[2];
+      function slopeLatex(value){
+        const parsed = parseFracString(value) || fractionParts(value);
+        if(parsed){
+          const [num, den] = parsed;
+          const sign = num < 0 ? "-" : "";
+          const absNum = Math.abs(num);
+          return `${sign}\\frac{${absNum}}{${den}}`;
+        }
+        return String(value);
+      }
+
+      function linearTermLatex(m){
+        if(m === 1 || m === "1") return "x";
+        if(m === -1 || m === "-1") return "-x";
+        const parsed = parseFracString(m) || fractionParts(m);
+        if(parsed){
+          const [num, den] = parsed;
+          const sign = num < 0 ? "-" : "";
+          const absNum = Math.abs(num);
+          return absNum === 1 ? `${sign}\\frac{x}{${den}}` : `${sign}\\frac{${absNum}x}{${den}}`;
+        }
+        return `${m}x`;
+      }
+
+      function oppositeSlope(m){
+        if(typeof m === "number") return -m;
+        if(String(m).startsWith("-")) return String(m).slice(1);
+        return "-" + m;
+      }
+
+      function latexLine(m, b){
+        const term = linearTermLatex(m);
+        if(b === 0) return `\\(y=${term}\\)`;
+        if(b > 0) return `\\(y=${term}+${b}\\)`;
+        return `\\(y=${term}${b}\\)`;
+      }
+
+      function latexFunction(m, b){
+        const term = linearTermLatex(m);
+        if(b === 0) return `\\(f(x)=${term}\\)`;
+        if(b > 0) return `\\(f(x)=${term}+${b}\\)`;
+        return `\\(f(x)=${term}${b}\\)`;
+      }
+
+      function graphM(m){
+        const parsed = parseFracString(m);
+        if(parsed) return parsed[0] / parsed[1];
+        return m;
+      }
+
+      const q5Value = data.q5m * data.q5x + data.q5b;
+      const q3Value = data.q3m * data.q3x;
+      const q9Text = `\\(A=${data.q9rate}t+${data.q9start}\\)`;
+      const q18Value = data.q18m * (data.q18a - data.q18c);
+      const q25Extra = [data.q25b, data.q25m + data.q25b, data.q25m - data.q25b, data.q25b - data.q25m, data.q25b + 2].find(v => ![data.q25m, -data.q25m, 0].includes(v));
 
       const questions = [
         {
-          topic:"Graph",
-          q:"Identify the relationship shown in the graph.",
-          extraHTML: `<div class="graph-display">${graphOption("Graph", "inverse")}</div>`,
-          c:["direct variation", "inverse variation", "neither"],
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:-1, b:2},
+          c:["\\(y=-x+2\\)","\\(y=x+2\\)","\\(y=-x-2\\)","\\(y=2x+2\\)"],
+          a:0
+        },
+        {
+          topic:"Lineal Function",
+          q:"Which function is lineal?",
+          c:[latexLine(data.q2m, 0),"\\(y=x+3\\)","\\(y=x^2\\)","\\(y=\\frac{4}{x}\\)"],
+          a:0
+        },
+        {
+          topic:"Value",
+          q:`For ${latexLine(data.q3m, 0)}, find \\(y\\) when \\(x=${data.q3x}\\).`,
+          c:[`\\(${data.q3m + data.q3x}\\)`,`\\(${q3Value}\\)`,`\\(${Math.abs(data.q3m - data.q3x)}\\)`,`\\(${data.q3m}${data.q3x}\\)`],
           a:1
         },
         {
-          topic:"Graph",
-          q:"Identify the relationship shown in the graph.",
-          extraHTML: `<div class="graph-display">${graphOption("Graph", "direct")}</div>`,
-          c:["direct variation", "inverse variation", "neither"],
+          topic:"Graph Slope",
+          q:"Find the slope of the line shown below.",
+          graph:{kind:"line", m:data.q4m, b:data.q4b},
+          c:[`\\(${slopeLatex(data.q4m)}\\)`,`\\(${slopeLatex(data.q4b)}\\)`,`\\(${slopeLatex(-data.q4m)}\\)`,`\\(${slopeLatex(-data.q4b)}\\)`],
           a:0
         },
         {
-          topic:"Graph",
-          q:"Identify the relationship shown in the graph.",
-          extraHTML: `<div class="graph-display">${graphOption("Graph", "affine")}</div>`,
-          c:["direct variation", "inverse variation", "neither"],
-          a:2
+          topic:"Function Value",
+          q:`Given ${latexFunction(data.q5m, data.q5b)}, find \\(f(${data.q5x})\\).`,
+          c:[`\\(${q5Value - 6}\\)`,`\\(${q5Value + 3}\\)`,`\\(${q5Value - 2}\\)`,`\\(${q5Value}\\)`],
+          a:3
         },
         {
-          topic:"Graph",
-          q:"Identify the relationship shown in the graph.",
-          extraHTML: `<div class="graph-display">${graphOption("Graph", "increasingCurve")}</div>`,
-          c:["direct variation", "inverse variation", "neither"],
-          a:2
+          topic:"Graph Lineal",
+          q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
+          graph:{kind:"multiLine", lines:[
+            {label:"A", m:1, labelX:4},
+            {label:"B", m:1/2, labelX:4},
+            {label:"C", m:-1/2, labelX:-4},
+            {label:"D", m:2, labelX:2}
+          ]},
+          c:["Line A","Line B","Line C","Line D"],
+          a: data.q30target === "2" ? 3 : (data.q30target === "-\\frac{1}{2}" ? 2 : 1)
         },
         {
-          topic:"Concept",
-          q:"Which equation shows that \\(p\\) and \\(q\\) vary inversely?",
-          c:["\\(pq=36\\)", "\\(p+q=36\\)", "\\(p-q=36\\)", "\\(\\frac{p}{q}=36\\)"],
+          topic:"Slope",
+          q:`Find the slope of ${latexLine(data.q7m, data.q7b)}.`,
+          c:[`\\(${slopeLatex(data.q7m)}\\)`,`\\(${slopeLatex(-data.q7m)}\\)`,`\\(${slopeLatex(data.q7b)}\\)`,`\\(${slopeLatex(-data.q7b)}\\)`],
           a:0
         },
         {
-          topic:"Concept",
-          q:"Which algebraic statement represents direct variation between \\(x\\) and \\(y\\)?",
-          c:[ratioEq(directK), productEq(directK), `\\(x+y=${directK}\\)`, `\\(y-x=${directK}\\)`],
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:graphM(data.q8m), b:data.q8b},
+          c:[latexLine(data.q8m, data.q8b), latexLine(oppositeSlope(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(graphM(data.q8m) + 2, data.q8b)],
           a:0
         },
         {
-          topic:"Direct Variation",
-          q:`\\(x\\) and \\(y\\) vary directly. If \\(x=${directPoint[0]}\\) when \\(y=${directPoint[1]}\\), find \\(k\\).`,
-          c:[`\\(${directK}\\)`, `\\(${directPoint[0] + directPoint[1]}\\)`, `\\(${directPoint[1] - directPoint[0]}\\)`, `\\(${directPoint[0] * directPoint[1]}\\)`],
-          a:0
+          topic:"Model",
+          q:`A tank has \\(${data.q9start}\\) liters. It fills \\(${data.q9rate}\\) liters each minute. Which equation gives the amount \\(A\\)?`,
+          c:[`\\(A=${data.q9start}t+${data.q9rate}\\)`,q9Text,`\\(A=${data.q9start + data.q9rate}t\\)`,`\\(A=\\frac{${data.q9start}}{${data.q9rate}}t\\)`],
+          a:1
         },
         {
-          topic:"Direct Variation",
-          q:`\\(x\\) and \\(y\\) vary directly. If \\(x=${directPoint[0]}\\) when \\(y=${directPoint[1]}\\), which equation is correct?`,
-          c:[directEq(directK), inverseEq(directPoint[1]), `\\(y=x+${directK}\\)`, `\\(x=${directK}y\\)`],
-          a:0
-        },
-        {
-          topic:"Inverse Variation",
-          q:`\\(x\\) and \\(y\\) vary inversely. If \\(x=${inversePoint[0]}\\) when \\(y=${inversePoint[1]}\\), find \\(k\\).`,
-          c:[`\\(${inverseK}\\)`, `\\(${inversePoint[1] - inversePoint[0]}\\)`, `\\(${inversePoint[0] + inversePoint[1]}\\)`, `\\(${Math.max(1, Math.round(inversePoint[1] / inversePoint[0]))}\\)`],
-          a:0
-        },
-        {
-          topic:"Inverse Variation",
-          q:`\\(x\\) and \\(y\\) vary inversely. If \\(x=${inversePoint[0]}\\) when \\(y=${inversePoint[1]}\\), which equation is correct?`,
-          c:[inverseEq(inverseK), directEq(inversePoint[1]), `\\(y=x+${inverseK}\\)`, ratioEq(inverseK)],
-          a:0
-        },
-        {
-          topic:"Direct Variation",
-          q:`For ${directEq(directK)}, find \\(y\\) when \\(x=${d.directX}\\).`,
-          c:[`\\(${d.directY}\\)`, `\\(${d.directX + directK}\\)`, `\\(${d.directX - directK}\\)`, `\\(${d.directY + directK}\\)`],
-          a:0
-        },
-        {
-          topic:"Direct Variation",
-          q:`\\(x\\) and \\(y\\) vary directly. If \\(y=${d.directY}\\) and \\(k=${directK}\\), find \\(x\\).`,
-          c:[`\\(${d.directX}\\)`, `\\(${d.directY + directK}\\)`, `\\(${d.directY - directK}\\)`, `\\(${directK}\\)`],
-          a:0
-        },
-        {
-          topic:"Inverse Variation",
-          q:`For ${inverseEq(inverseK)}, find \\(y\\) when \\(x=${d.inverseX}\\).`,
-          c:[`\\(${d.inverseY}\\)`, `\\(${d.inverseX + d.inverseY}\\)`, `\\(${d.inverseX - d.inverseY}\\)`, `\\(${inverseK / d.inverseY}\\)`],
-          a:0
-        },
-        {
-          topic:"Inverse Variation",
-          q:`\\(x\\) and \\(y\\) vary inversely. If \\(y=${d.inverseY}\\) and \\(k=${inverseK}\\), find \\(x\\).`,
-          c:[`\\(${d.inverseX}\\)`, `\\(${inverseK + d.inverseY}\\)`, `\\(${inverseK - d.inverseY}\\)`, `\\(${d.inverseY}\\)`],
-          a:0
-        },
-        {
-          topic:"Direct Word Problem",
-          q:`A machine fills ${d.machine[0]} bottles in ${d.machine[1]} minutes. At the same rate, how many bottles can it fill in ${d.machine[2]} minutes?`,
-          c:[`\\(${machineAnswer}\\) bottles`, `\\(${machineAnswer - 60}\\) bottles`, `\\(${machineAnswer + 90}\\) bottles`, `\\(${Math.round(machineAnswer/2)}\\) bottles`],
-          a:0
-        },
-        {
-          topic:"Inverse Word Problem",
-          q:`${d.workers[0]} workers can complete a mural in ${d.workers[1]} days. How many workers are needed to complete the same mural in ${d.workers[2]} days?`,
-          c:[`\\(${workerAnswer}\\) workers`, `\\(${workerAnswer + 4}\\) workers`, `\\(${workerAnswer + 8}\\) workers`, `\\(${Math.max(1, workerAnswer - 3)}\\) workers`],
-          a:0
-        },
-        {
-          topic:"Table",
-          q:"Which table represents direct variation?",
-          c:[
-            tableChoice("Table 1", d.tableXs, d.tableDirect),
-            tableChoice("Table 2", d.tableXs, d.tableBad),
-            tableChoice("Table 3", d.tableXs, d.tableInverse),
-            tableChoice("Table 4", d.tableXs, d.tableXs.map(x => x + 3))
-          ],
-          a:0
-        },
-        {
-          topic:"Table",
-          q:"Which table represents inverse variation?",
-          c:[
-            tableChoice("Table 1", d.tableXs, d.tableInverse),
-            tableChoice("Table 2", d.tableXs, d.tableDirect),
-            tableChoice("Table 3", d.tableXs, d.tableBad),
-            tableChoice("Table 4", d.tableXs, d.tableXs.map(x => 2 * x + 1))
-          ],
-          a:0
-        },
-        {
-          topic:"Table",
-          q:"The table below shows values of x and y. What relationship is shown?",
-          extraHTML: tableHTML(d.tableXs, d.tableDirect),
-          c:["direct variation", "inverse variation", "neither", "constant difference only"],
-          a:0
-        },
-        {
-          topic:"Direct Points",
-          q:`The points \\((${d.pointD1[0]},${d.pointD1[1]})\\) and \\((x,${d.pointD2[1]})\\) follow direct variation. Find \\(x\\).`,
-          c:[`\\(${d.pointD2[0]}\\)`, `\\(${d.pointD2[0] + 2}\\)`, `\\(${Math.max(1, d.pointD2[0] - 3)}\\)`, `\\(${d.pointD1[0] + d.pointD2[1]}\\)`],
-          a:0
-        },
-        {
-          topic:"Inverse Points",
-          q:`The points \\((${d.pointI1[0]},${d.pointI1[1]})\\) and \\((x,${d.pointI2[1]})\\) follow inverse variation. Find \\(x\\).`,
-          c:[`\\(${d.pointI2[0]}\\)`, `\\(${d.pointI2[0] + 3}\\)`, `\\(${Math.max(1, d.pointI2[0] - 4)}\\)`, `\\(${d.pointI1[0] + d.pointI1[1]}\\)`],
-          a:0
-        },
-        {
-          topic:"Complete Table",
-          q:"Complete the missing information in the table below. Which answer correctly completes one row?",
-          extraHTML: completeTableHTML(d.tableComplete),
-          c:[
-            completeTableChoice(completeTarget1, "correct"),
-            completeTableChoice(completeTarget1, "wrongRelationship"),
-            completeTableChoice(completeTarget1, "wrongK"),
-            completeTableChoice(completeTarget1, "wrongY")
-          ],
-          a:0
-        },
-        {
-          topic:"Complete Table",
-          q:"Complete the missing information in the table below. Which answer correctly completes one row?",
-          extraHTML: completeTableHTML(d.tableComplete),
-          c:[
-            completeTableChoice(completeTarget2, "correct"),
-            completeTableChoice(completeTarget2, "wrongRelationship"),
-            completeTableChoice(completeTarget2, "wrongK"),
-            completeTableChoice(completeTarget2, "wrongY")
-          ],
-          a:0
-        },
-        {
-          topic:"Complete Table",
-          q:"Complete the missing information in the table below. Which answer correctly completes one row?",
-          extraHTML: completeTableHTML(d.tableComplete),
-          c:[
-            completeTableChoice(completeTarget3, "correct"),
-            completeTableChoice(completeTarget3, "wrongRelationship"),
-            completeTableChoice(completeTarget3, "wrongK"),
-            completeTableChoice(completeTarget3, "wrongY")
-          ],
+          topic:"Slope",
+          q:`Find the slope of the line through \\(${data.q10p1}\\) and \\(${data.q10p2}\\).`,
+          c:[`\\(${slopeLatex(data.q10ans)}\\)`,"\\(1\\)","\\(-2\\)","\\(4\\)"],
           a:0
         },
         {
           topic:"Equation",
-          q:`Which equation has constant of proportionality \\(k=${directK}\\) for direct variation?`,
-          c:[directEq(directK), inverseEq(directK), `\\(y=x+${directK}\\)`, `\\(xy=${directK}\\)`],
-          a:0
+          q:`Which equation has slope \\(${slopeLatex(data.q11m)}\\) and \\(y\\)-intercept \\(${data.q11b}\\)?`,
+          c:[latexLine(-data.q11m, data.q11b), latexLine(data.q11m, data.q11b), latexLine(data.q11b, data.q11m), latexLine(-1, Math.abs(data.q11m))],
+          a:1
         },
         {
           topic:"Equation",
-          q:`Which equation has constant of proportionality \\(k=${inverseK}\\) for inverse variation?`,
-          c:[inverseEq(inverseK), directEq(inverseK), `\\(y=x+${inverseK}\\)`, ratioEq(inverseK)],
+          q:`Which equation has slope \\(${slopeLatex(data.q12m)}\\) and \\(y\\)-intercept \\(${data.q12b}\\)?`,
+          c:[latexLine(data.q12m, data.q12b), latexLine(oppositeSlope(data.q12m), data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:graphM(data.q13m), b:data.q13b},
+          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === "\\frac{3}{2}" ? "\\frac{2}{3}" : data.q13m === -2 ? "\\frac{1}{2}" : "\\frac{3}{2}", data.q13b), latexLine(oppositeSlope(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
+          a:0
+        },
+        {
+          topic:"Slope",
+          q:`Find the slope of the line through \\(${data.q14p1}\\) and \\(${data.q14p2}\\).`,
+          c:[`\\(${slopeLatex(data.q14ans)}\\)`,"\\(3\\)","\\(6\\)","\\(-2\\)"],
+          a:0
+        },
+        {
+          topic:"Find coefficient",
+          q:"If \\(y=ax\\) and \\((3,-12)\\) is on the graph, find \\(a\\).",
+          c:["\\(4\\)","\\(-4\\)","\\(-9\\)","\\(15\\)"],
+          a:1
+        },
+        {
+          topic:"Graph Slope",
+          q:"Consider the graph of the line shown below. Calculate the slope.",
+          graph:{kind:"line", m:data.q16m, b:data.q16b},
+          c:[`\\(${slopeLatex(data.q16m)}\\)`,`\\(${slopeLatex(-data.q16m)}\\)`,`\\(${slopeLatex(data.q16b)}\\)`,`\\(${slopeLatex(-data.q16b)}\\)`],
           a:0
         },
         {
           topic:"Concept",
-          q:"Which situation does not represent inverse variation?",
-          c:[
-            "More people sharing the same pizza means fewer slices per person.",
-            "More identical taps filling a pool means less time needed.",
-            "More notebooks bought at the same price means a higher total cost.",
-            "More buses carrying the same number of students means fewer students per bus."
-          ],
+          q:`For ${latexLine(data.q17m, data.q17b)}, where does the graph cross the \\(y\\)-axis?`,
+          c:[`\\((${data.q17b},0)\\)`,`\\((0,${data.q17m})\\)`,`\\((0,${data.q17b})\\)`,`\\((${data.q17m},${data.q17b})\\)`],
           a:2
         },
         {
-          topic:"Constant",
-          q:`For inverse variation, \\(y=${d.inverseY}\\) when \\(x=${d.inverseX}\\). What is the constant \\(k\\)?`,
-          c:[`\\(${inverseK}\\)`, `\\(${d.inverseX + d.inverseY}\\)`, `\\(${d.inverseX - d.inverseY}\\)`, `\\(${d.inverseX / d.inverseY}\\)`],
+          topic:"Function Value",
+          q:`Given ${latexFunction(data.q18m, data.q18b)}, find \\(f(${data.q18a})-f(${data.q18c})\\).`,
+          c:[`\\(${q18Value}\\)`,`\\(${data.q18m * (data.q18a + data.q18c)}\\)`,`\\(${-q18Value}\\)`,`\\(${q18Value + data.q18b}\\)`],
           a:0
         },
         {
-          topic:"Direct Word Problem",
-          q:`A recipe uses ${d.recipe[1]} cups of water for ${d.recipe[0]} cups of oats. How many cups of water are needed for ${d.recipe[2]} cups of oats?`,
-          c:[`\\(${recipeAnswer}\\) cups`, `\\(${recipeAnswer + 4}\\) cups`, `\\(${Math.max(1, recipeAnswer - 5)}\\) cups`, `\\(${d.recipe[1] + d.recipe[2]}\\) cups`],
+          topic:"Affine Functions",
+          q:"Check all equations that are affine functions.",
+          multi:true,
+          c:[
+            "\\(y=2x+3\\)",
+            "\\(y=-x+5\\)",
+            "\\(y=\\frac{x}{2}-4\\)",
+            "\\(y=4x\\)",
+            "\\(y=x^2+1\\)",
+            "\\(y=\\frac{5}{x}\\)",
+            "\\(y=-4x-7\\)",
+            "\\(y=3\\)",
+            "\\(x=4\\)",
+            "\\(y=\\frac{x}{4}+1\\)"
+          ],
+          a:[0,1,2,6,9]
+        },
+        {
+          topic:"Concept",
+          q:"Which graph always passes through \\((0,0)\\)?",
+          c:["\\(y=ax\\)","\\(y=ax+b\\), where \\(b\\ne0\\)","\\(y=x^2+1\\)","\\(y=\\frac{a}{x}\\)"],
           a:0
         },
         {
-          topic:"Inverse Word Problem",
-          q:`A food supply feeds ${d.storage[0]} students for ${d.storage[1]} days. If the same supply must feed ${d.storage[2]} students, how many days will it last?`,
-          c:[`\\(${storageAnswer}\\) days`, `\\(${storageAnswer + 4}\\) days`, `\\(${Math.max(1, storageAnswer - 3)}\\) days`, `\\(${d.storage[1]}\\) days`],
+          topic:"Model",
+          q:"A notebook costs \\(\\$4\\). Which equation gives the cost \\(C\\) for \\(n\\) notebooks?",
+          c:["\\(C=4n\\)","\\(C=n+4\\)","\\(C=4-n\\)","\\(C=\\frac{n}{4}\\)"],
           a:0
+        },
+        {
+          topic:"Graph Slope",
+          q:"Find the slope of the line shown.",
+          graph:{kind:"line", m:data.q22m, b:data.q22b},
+          c:[`\\(${slopeLatex(data.q22m)}\\)`,`\\(${slopeLatex(1/data.q22m)}\\)`,`\\(${slopeLatex(-data.q22m)}\\)`,`\\(${slopeLatex(-1/data.q22m)}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:data.q23m, b:data.q23b},
+          c:[latexLine(data.q23m, data.q23b), latexLine(data.q23m, data.q23b === 0 ? 2 : -data.q23b), latexLine(-data.q23m, data.q23b), latexLine(data.q23m + 1, data.q23b)],
+          a:0
+        },
+        {
+          topic:"Equation",
+          q:`Which equation has slope \\(${slopeLatex(data.q24m)}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
+          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{4}{5}", data.q24b), latexLine(oppositeSlope(data.q24m), data.q24b), latexLine(data.q24m, -data.q24b)],
+          a:0
+        },
+        {
+          topic:"Graph Slope",
+          q:"Find the slope of the line shown.",
+          graph:{kind:"line", m:data.q25m, b:data.q25b},
+          c:[`\\(${slopeLatex(data.q25m)}\\)`,`\\(${slopeLatex(-data.q25m)}\\)`,`\\(0\\)`,`\\(${slopeLatex(q25Extra)}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Equation",
+          q:"Find the equation of the line shown.",
+          graph:{kind:"line", m:data.q26m, b:data.q26b},
+          c:[latexLine(data.q26m, data.q26b), latexLine(-data.q26m, data.q26b), latexLine(data.q26m, -data.q26b), latexLine(data.q26m + 1, data.q26b)],
+          a:0
+        },
+        {
+          topic:"Point",
+          q:"Which point is on the graph of \\(y=3x\\)?",
+          c:["\\((2,6)\\)","\\((2,5)\\)","\\((3,2)\\)","\\((6,2)\\)"],
+          a:0
+        },
+        {
+          topic:"Model",
+          q:"A taxi costs \\(\\$3\\) to start and \\(\\$2\\) per kilometer. Which equation gives the cost \\(C\\)?",
+          c:["\\(C=3x+2\\)","\\(C=2x+3\\)","\\(C=5x\\)","\\(C=\\frac{3x}{2}\\)"],
+          a:1
+        },
+        {
+          topic:"Graph Details",
+          q:"Find the slope and the \\(y\\)-intercept of the line shown.",
+          graph:{kind:"line", m:data.q29m, b:data.q29b},
+          c:[`Slope \\(=${slopeLatex(data.q29m)}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29b}\\), \\(y\\)-intercept \\(=${slopeLatex(data.q29m)}\\)`,`Slope \\(=${slopeLatex(-data.q29m)}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${slopeLatex(data.q29m)}\\), \\(y\\)-intercept \\(=${-data.q29b}\\)`],
+          a:0
+        },
+        {
+          topic:"Graph Lineal",
+          q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
+          graph:{kind:"multiLine", lines:[
+            {label:"A", m:1, labelX:4},
+            {label:"B", m:1/2, labelX:4},
+            {label:"C", m:-1/2, labelX:-4},
+            {label:"D", m:2, labelX:2}
+          ]},
+          c:["Line A","Line B","Line C","Line D"],
+          a: data.q30target === "2" ? 3 : (data.q30target === "-\\frac{1}{2}" ? 2 : 1)
         }
       ];
 
       const questionsWithRandomChoices = randomizeChoices(questions, attempt);
       return randomizeQuestionOrder(questionsWithRandomChoices, attempt);
     }
-
 
     function seededRandom(seed){
       let value = seed;
@@ -1731,7 +1624,7 @@
 
       testQuestions.forEach((item, qIndex) => {
         const card = document.createElement("div");
-        card.className = "question-card" + (item.graph ? " has-graph" : "") + (item.extraHTML ? " has-extra" : "");
+        card.className = "question-card" + (item.graph ? " has-graph" : "");
         card.id = `question-${qIndex + 1}`;
 
         const graphHTML = item.graph ? graphSvg(item.graph) : "";
@@ -1749,15 +1642,12 @@
           `;
         }).join("");
 
-        const extraHTML = item.extraHTML ? `<div class="question-extra">${item.extraHTML}</div>` : "";
-
         card.innerHTML = `
           <div class="question-top">
             <div class="q-number">Question ${qIndex + 1}</div>
             <div class="q-topic">${item.topic}</div>
           </div>
           <div class="question-text">${item.q}</div>
-          ${extraHTML}
           <div class="question-body">
             ${graphHTML}
             <div class="choices">${choicesHTML}</div>
@@ -1828,7 +1718,7 @@
 
       printReport.innerHTML = `
         <div class="print-sheet">
-          <div class="print-title">Direct and Inverse Variation</div>
+          <div class="print-title">Linear and Affine Functions</div>
           <div class="print-subtitle">Practice Test Result Report</div>
 
           <div class="print-info">
@@ -1979,4 +1869,3 @@
   </script>
 </body>
 </html>
-
