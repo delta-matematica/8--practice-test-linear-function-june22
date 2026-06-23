@@ -474,6 +474,154 @@
 
     #printReport{ display:none; }
 
+
+    .teacher-link{
+      margin-top:18px;
+      background:#fff;
+      color:var(--blue-dark);
+      border:1px solid var(--blue-dark);
+      box-shadow:none;
+      padding:10px 22px;
+      font-size:14px;
+    }
+
+    .teacher-modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background:rgba(10,20,35,.48);
+      padding:20px;
+      z-index:20;
+    }
+
+    .teacher-modal.show{
+      display:grid;
+    }
+
+    .teacher-box{
+      width:min(980px,96vw);
+      max-height:88vh;
+      overflow:auto;
+      background:#fffdf8;
+      border:1px solid var(--line);
+      border-top:10px solid var(--blue-dark);
+      border-radius:18px;
+      padding:28px;
+      color:var(--ink);
+      box-shadow:0 22px 60px rgba(0,0,0,.25);
+    }
+
+    .teacher-box h2{
+      margin:0 0 6px;
+      color:var(--blue-dark);
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      font-size:30px;
+      text-align:center;
+    }
+
+    .teacher-note{
+      text-align:center;
+      color:var(--muted);
+      margin:0 0 20px;
+      font-size:15px;
+    }
+
+    .teacher-passcode{
+      width:min(420px,100%);
+      margin:0 auto 18px;
+      display:grid;
+      gap:10px;
+    }
+
+    .teacher-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin:16px 0;
+    }
+
+    .teacher-table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      margin-top:16px;
+    }
+
+    table.teacher-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+      min-width:760px;
+    }
+
+    .teacher-table th,
+    .teacher-table td{
+      border-bottom:1px solid #d8e1ec;
+      padding:10px 12px;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    .teacher-table th{
+      background:var(--blue-soft);
+      color:var(--blue-dark);
+      text-transform:uppercase;
+      font-size:12px;
+      letter-spacing:.05em;
+    }
+
+    .teacher-table tr:hover td{
+      background:#f8fbff;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin:16px 0;
+    }
+
+    .summary-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:13px;
+      text-align:center;
+    }
+
+    .summary-label{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .summary-value{
+      font-size:24px;
+      color:var(--blue-dark);
+      font-weight:900;
+    }
+
+    .teacher-status{
+      text-align:center;
+      color:var(--muted);
+      margin-top:12px;
+      font-size:15px;
+    }
+
+    @media(max-width:800px){
+      .summary-grid{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+
     @media print{
       body{ background:#fff; }
       body.printing-result .page,
@@ -601,6 +749,7 @@
 
         <div class="ready">Ready To Start?</div>
         <button id="startBtn" class="main-btn">Start Test</button>
+        <button id="teacherBtn" class="main-btn teacher-link">Teacher Results</button>
       </div>
     </section>
 
@@ -658,6 +807,65 @@
       </div>
     </div>
   </div>
+
+
+  <div id="teacherModal" class="teacher-modal">
+    <div class="teacher-box">
+      <h2>Teacher Results</h2>
+      <p class="teacher-note">Enter the teacher passcode to view submitted student results.</p>
+
+      <div id="teacherLogin" class="teacher-passcode">
+        <label for="teacherPasscode">Passcode</label>
+        <input id="teacherPasscode" type="password" placeholder="Enter passcode">
+        <button id="unlockTeacherBtn" class="main-btn">View Results</button>
+      </div>
+
+      <div id="teacherDashboard" style="display:none;">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-label">Submissions</div>
+            <div id="summarySubmissions" class="summary-value">0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Students</div>
+            <div id="summaryStudents" class="summary-value">0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Average</div>
+            <div id="summaryAverage" class="summary-value">0%</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Highest</div>
+            <div id="summaryHighest" class="summary-value">0%</div>
+          </div>
+        </div>
+
+        <div class="teacher-actions">
+          <button id="refreshResultsBtn" class="main-btn">Refresh Results</button>
+          <button id="closeTeacherBtn" class="main-btn secondary-btn">Close</button>
+        </div>
+
+        <div class="teacher-table-wrap">
+          <table class="teacher-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Attempt</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Completed</th>
+              </tr>
+            </thead>
+            <tbody id="teacherResultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="teacherStatus" class="teacher-status"></div>
+    </div>
+  </div>
+
 
   <section id="printReport"></section>
 
@@ -883,6 +1091,61 @@
       }
 
       return { saved:true };
+    }
+
+
+    const TEACHER_PASSCODE = "DELTA8231970";
+
+    async function loadTeacherResults(){
+      const teacherStatus = document.getElementById("teacherStatus");
+      const teacherResultsBody = document.getElementById("teacherResultsBody");
+
+      if(!supabaseEnabled || !supabaseClient){
+        teacherStatus.textContent = "Supabase is not connected. Check the URL and anon key in the script.";
+        return;
+      }
+
+      teacherStatus.textContent = "Loading results...";
+      teacherResultsBody.innerHTML = "";
+
+      const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE)
+        .select("first_name,last_name,student_name,attempt,score,total_questions,percentage,completed_at,created_at")
+        .order("completed_at", { ascending:false });
+
+      if(error){
+        console.error("Teacher results error:", error);
+        teacherStatus.textContent = "Could not load results. You may need to add a SELECT policy in Supabase.";
+        return;
+      }
+
+      const rows = data || [];
+      const uniqueStudents = new Set(rows.map(r => (r.student_name || `${r.first_name || ""} ${r.last_name || ""}`).trim().toUpperCase()).filter(Boolean));
+      const average = rows.length ? Math.round(rows.reduce((s,r) => s + Number(r.percentage || 0), 0) / rows.length) : 0;
+      const highest = rows.length ? Math.max(...rows.map(r => Number(r.percentage || 0))) : 0;
+
+      document.getElementById("summarySubmissions").textContent = rows.length;
+      document.getElementById("summaryStudents").textContent = uniqueStudents.size;
+      document.getElementById("summaryAverage").textContent = `${average}%`;
+      document.getElementById("summaryHighest").textContent = `${highest}%`;
+
+      teacherResultsBody.innerHTML = rows.map((r, index) => {
+        const name = r.student_name || `${r.first_name || ""} ${r.last_name || ""}`.trim();
+        const completedRaw = r.completed_at || r.created_at;
+        const completed = completedRaw ? new Date(completedRaw).toLocaleString() : "";
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${name}</td>
+            <td>${r.attempt || ""}</td>
+            <td>${r.score || 0} / ${r.total_questions || 30}</td>
+            <td>${r.percentage || 0}%</td>
+            <td>${completed}</td>
+          </tr>
+        `;
+      }).join("");
+
+      teacherStatus.textContent = rows.length ? "Results loaded." : "No student results found yet.";
     }
 
     function choiceSet(correct, wrongs){
@@ -1207,6 +1470,15 @@
     const printBtn = document.getElementById("printBtn");
     const printReport = document.getElementById("printReport");
     const saveStatus = document.getElementById("saveStatus");
+    const teacherBtn = document.getElementById("teacherBtn");
+    const teacherModal = document.getElementById("teacherModal");
+    const teacherPasscode = document.getElementById("teacherPasscode");
+    const unlockTeacherBtn = document.getElementById("unlockTeacherBtn");
+    const teacherLogin = document.getElementById("teacherLogin");
+    const teacherDashboard = document.getElementById("teacherDashboard");
+    const refreshResultsBtn = document.getElementById("refreshResultsBtn");
+    const closeTeacherBtn = document.getElementById("closeTeacherBtn");
+    const teacherStatus = document.getElementById("teacherStatus");
 
     function renderQuestions(){
       questionList.innerHTML = "";
@@ -1360,6 +1632,45 @@
         saveStatus.textContent = "Result was not saved. Check Supabase settings and table columns.";
       }
     }
+
+
+    teacherBtn.onclick = () => {
+      teacherModal.classList.add("show");
+      teacherPasscode.value = "";
+      teacherStatus.textContent = "";
+      teacherLogin.style.display = "grid";
+      teacherDashboard.style.display = "none";
+      setTimeout(() => teacherPasscode.focus(), 100);
+    };
+
+    unlockTeacherBtn.onclick = async () => {
+      if(teacherPasscode.value.trim() !== TEACHER_PASSCODE){
+        teacherStatus.textContent = "Incorrect passcode.";
+        return;
+      }
+
+      teacherLogin.style.display = "none";
+      teacherDashboard.style.display = "block";
+      await loadTeacherResults();
+    };
+
+    teacherPasscode.addEventListener("keydown", async (e) => {
+      if(e.key === "Enter"){
+        unlockTeacherBtn.click();
+      }
+    });
+
+    refreshResultsBtn.onclick = loadTeacherResults;
+
+    closeTeacherBtn.onclick = () => {
+      teacherModal.classList.remove("show");
+    };
+
+    teacherModal.addEventListener("click", (e) => {
+      if(e.target === teacherModal){
+        teacherModal.classList.remove("show");
+      }
+    });
 
     startBtn.onclick = () => {
       firstName = firstInput.value.trim().toUpperCase();
