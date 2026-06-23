@@ -146,6 +146,14 @@
       box-shadow:0 0 0 3px rgba(31,95,153,.12);
     }
 
+    .email-field{
+      margin-top:18px;
+    }
+
+    .email-input{
+      text-transform:none;
+    }
+
     .instruction{
       width:min(820px,100%);
       border-left:6px solid var(--gold);
@@ -745,6 +753,11 @@
               <input id="lastName" type="text" autocomplete="off" placeholder="Enter last name">
             </div>
           </div>
+
+          <div class="field email-field">
+            <label for="schoolEmail">Email</label>
+            <input id="schoolEmail" class="email-input" type="email" autocomplete="off" placeholder="EMAIL">
+          </div>
         </div>
 
         <div class="instruction">
@@ -856,6 +869,7 @@
               <tr>
                 <th>#</th>
                 <th>Student</th>
+                <th>Email</th>
                 <th>Attempt</th>
                 <th>Score</th>
                 <th>Percentage</th>
@@ -1004,6 +1018,7 @@
        first_name          text
        last_name           text
        student_name        text
+       student_email       text
        test_title          text
        attempt             int4
        score               int4
@@ -1020,6 +1035,7 @@
          first_name text,
          last_name text,
          student_name text,
+         student_email text,
          test_title text,
          attempt int4,
          score int4,
@@ -1029,13 +1045,23 @@
          completed_at timestamptz
        );
 
+       -- Use this if your table already existed before the Email field was added.
+       alter table linear_affine_results
+       add column if not exists student_email text;
+
        alter table linear_affine_results enable row level security;
 
-       create policy "Allow public insert for practice test"
+       create policy if not exists "Allow public insert for practice test"
        on linear_affine_results
        for insert
        to anon
        with check (true);
+
+       create policy if not exists "Allow public select for teacher results"
+       on linear_affine_results
+       for select
+       to anon
+       using (true);
 
        ========================================================== */
 
@@ -1077,6 +1103,7 @@
         first_name: firstName,
         last_name: lastName,
         student_name: `${firstName} ${lastName}`,
+        student_email: schoolEmail,
         test_title: "Linear and Affine Functions",
         attempt: currentAttempt,
         score: latestScore,
@@ -1115,7 +1142,7 @@
 
       const { data, error } = await supabaseClient
         .from(SUPABASE_TABLE)
-        .select("first_name,last_name,student_name,attempt,score,total_questions,percentage,completed_at,created_at")
+        .select("first_name,last_name,student_name,student_email,attempt,score,total_questions,percentage,completed_at,created_at")
         .order("completed_at", { ascending:false });
 
       if(error){
@@ -1142,6 +1169,7 @@
           <tr>
             <td>${index + 1}</td>
             <td>${name}</td>
+            <td>${r.student_email || ""}</td>
             <td>${r.attempt || ""}</td>
             <td>${r.score || 0} / ${r.total_questions || 30}</td>
             <td>${r.percentage || 0}%</td>
@@ -1164,63 +1192,108 @@
       const data = {
         1:{
           q2m:-4, q3m:5, q3x:4, q4m:-3, q4b:1, q5m:-3, q5b:10, q5x:-3,
-          q7m:-2, q7b:9, q8m:-0.5, q8b:3, q9start:10, q9rate:4,
-          q10m:3, q10b:2, q11m:-4, q11b:1, q12m:"-\\frac{2}{3}", q12b:5,
-          q13m:1.5, q13b:-2, q14p1:"(1,2)", q14p2:"(4,8)", q14ans:2,
-          q16m:-3, q16b:1, q17m:2, q17b:4, q18m:2, q18b:5,
+          q7m:-2, q7b:9, q8m:"-\\frac{1}{2}", q8b:3, q9start:10, q9rate:4,
+          q10p1:"(1,2)", q10p2:"(3,8)", q10ans:3, q11m:-4, q11b:1, q12m:"-\\frac{2}{3}", q12b:5,
+          q13m:"\\frac{3}{2}", q13b:-2, q14p1:"(1,2)", q14p2:"(4,8)", q14ans:2,
+          q16m:-3, q16b:1, q17m:2, q17b:4, q18m:2, q18b:5, q18a:4, q18c:-1,
           q22m:2, q22b:-3, q23m:1, q23b:1, q24m:"\\frac{3}{4}", q24b:-2,
           q25m:-1, q25b:-1, q26m:-1, q26b:2, q29m:2, q29b:1, q30target:"\\frac{1}{2}"
         },
         2:{
           q2m:6, q3m:4, q3x:7, q4m:2, q4b:-1, q5m:4, q5b:-6, q5x:-2,
           q7m:3, q7b:-5, q8m:2, q8b:-1, q9start:8, q9rate:3,
-          q10m:5, q10b:-2, q11m:-3, q11b:4, q12m:"\\frac{3}{5}", q12b:-1,
+          q10p1:"(2,5)", q10p2:"(6,13)", q10ans:2, q11m:-3, q11b:4, q12m:"\\frac{3}{5}", q12b:-1,
           q13m:-2, q13b:3, q14p1:"(2,1)", q14p2:"(5,7)", q14ans:2,
-          q16m:2, q16b:-1, q17m:-3, q17b:2, q18m:-1, q18b:6,
+          q16m:2, q16b:-1, q17m:-3, q17b:2, q18m:-1, q18b:6, q18a:-2, q18c:3,
           q22m:-2, q22b:5, q23m:-1, q23b:3, q24m:"-\\frac{1}{2}", q24b:4,
           q25m:1, q25b:-2, q26m:2, q26b:-1, q29m:-1, q29b:4, q30target:"2"
         },
         3:{
           q2m:-7, q3m:6, q3x:3, q4m:-1, q4b:4, q5m:-2, q5b:8, q5x:-4,
           q7m:-5, q7b:2, q8m:1, q8b:-4, q9start:12, q9rate:5,
-          q10m:-2, q10b:6, q11m:4, q11b:-3, q12m:"-\\frac{4}{5}", q12b:2,
-          q13m:0.5, q13b:-3, q14p1:"(-1,3)", q14p2:"(3,5)", q14ans:"\\frac{1}{2}",
-          q16m:-2, q16b:5, q17m:4, q17b:-2, q18m:3, q18b:-4,
+          q10p1:"(-2,4)", q10p2:"(4,1)", q10ans:"-\\frac{1}{2}", q11m:4, q11b:-3, q12m:"-\\frac{4}{5}", q12b:2,
+          q13m:"\\frac{1}{2}", q13b:-3, q14p1:"(-1,3)", q14p2:"(3,5)", q14ans:"\\frac{1}{2}",
+          q16m:-2, q16b:5, q17m:4, q17b:-2, q18m:3, q18b:-4, q18a:1, q18c:-2,
           q22m:3, q22b:-4, q23m:2, q23b:0, q24m:"\\frac{2}{3}", q24b:1,
           q25m:-2, q25b:3, q26m:-1, q26b:-3, q29m:1, q29b:-2, q30target:"-\\frac{1}{2}"
         }
       }[attempt];
 
-      function formatCoefficient(m){
-        if(m === 1 || m === "1") return "";
-        if(m === -1 || m === "-1") return "-";
-        return typeof m === "number" ? String(m) : m;
+      function parseFracString(value){
+        if(typeof value !== "string") return null;
+        const clean = value.replace(/\s/g, "");
+        const match = clean.match(/^(-?)\\\\frac\{(\d+)\}\{(\d+)\}$/);
+        if(!match) return null;
+        const sign = match[1] === "-" ? -1 : 1;
+        return [sign * Number(match[2]), Number(match[3])];
+      }
+
+      function fractionParts(value){
+        const map = {
+          "0.5":[1,2], "-0.5":[-1,2],
+          "1.5":[3,2], "-1.5":[-3,2],
+          "0.25":[1,4], "-0.25":[-1,4],
+          "0.75":[3,4], "-0.75":[-3,4],
+          "0.6":[3,5], "-0.6":[-3,5],
+          "0.8":[4,5], "-0.8":[-4,5]
+        };
+        return map[String(value)] || null;
+      }
+
+      function slopeLatex(value){
+        const parsed = parseFracString(value) || fractionParts(value);
+        if(parsed){
+          const [num, den] = parsed;
+          const sign = num < 0 ? "-" : "";
+          const absNum = Math.abs(num);
+          return `${sign}\\frac{${absNum}}{${den}}`;
+        }
+        return String(value);
+      }
+
+      function linearTermLatex(m){
+        if(m === 1 || m === "1") return "x";
+        if(m === -1 || m === "-1") return "-x";
+        const parsed = parseFracString(m) || fractionParts(m);
+        if(parsed){
+          const [num, den] = parsed;
+          const sign = num < 0 ? "-" : "";
+          const absNum = Math.abs(num);
+          return absNum === 1 ? `${sign}\\frac{x}{${den}}` : `${sign}\\frac{${absNum}x}{${den}}`;
+        }
+        return `${m}x`;
+      }
+
+      function oppositeSlope(m){
+        if(typeof m === "number") return -m;
+        if(String(m).startsWith("-")) return String(m).slice(1);
+        return "-" + m;
       }
 
       function latexLine(m, b){
-        const mText = formatCoefficient(m);
-        if(b === 0) return `\\(y=${mText}x\\)`;
-        if(b > 0) return `\\(y=${mText}x+${b}\\)`;
-        return `\\(y=${mText}x${b}\\)`;
+        const term = linearTermLatex(m);
+        if(b === 0) return `\\(y=${term}\\)`;
+        if(b > 0) return `\\(y=${term}+${b}\\)`;
+        return `\\(y=${term}${b}\\)`;
+      }
+
+      function latexFunction(m, b){
+        const term = linearTermLatex(m);
+        if(b === 0) return `\\(f(x)=${term}\\)`;
+        if(b > 0) return `\\(f(x)=${term}+${b}\\)`;
+        return `\\(f(x)=${term}${b}\\)`;
       }
 
       function graphM(m){
-        if(m === "\\frac{3}{4}") return 0.75;
-        if(m === "-\\frac{1}{2}") return -0.5;
-        if(m === "\\frac{2}{3}") return 2/3;
-        if(m === "-\\frac{2}{3}") return -2/3;
-        if(m === "\\frac{3}{5}") return 0.6;
-        if(m === "-\\frac{4}{5}") return -0.8;
-        if(m === "\\frac{1}{2}") return 0.5;
-        if(m === "-\\frac{1}{2}") return -0.5;
+        const parsed = parseFracString(m);
+        if(parsed) return parsed[0] / parsed[1];
         return m;
       }
 
       const q5Value = data.q5m * data.q5x + data.q5b;
       const q3Value = data.q3m * data.q3x;
       const q9Text = `\\(A=${data.q9rate}t+${data.q9start}\\)`;
-      const q10Correct = latexLine(data.q10m, data.q10b).replace("\\(y=", "").replace("\\)", "");
-      const q11Correct = latexLine(data.q11m, data.q11b).replace("\\(y=", "").replace("\\)", "");
+      const q18Value = data.q18m * (data.q18a - data.q18c);
       const q25Extra = [data.q25b, data.q25m + data.q25b, data.q25m - data.q25b, data.q25b - data.q25m, data.q25b + 2].find(v => ![data.q25m, -data.q25m, 0].includes(v));
 
       const questions = [
@@ -1234,25 +1307,25 @@
         {
           topic:"Lineal Function",
           q:"Which function is lineal?",
-          c:[`\\(y=${data.q2m}x\\)`,"\\(y=x+3\\)","\\(y=x^2\\)","\\(y=\\frac{4}{x}\\)"],
+          c:[latexLine(data.q2m, 0),"\\(y=x+3\\)","\\(y=x^2\\)","\\(y=\\frac{4}{x}\\)"],
           a:0
         },
         {
           topic:"Value",
-          q:`For \\(y=${data.q3m}x\\), find \\(y\\) when \\(x=${data.q3x}\\).`,
+          q:`For ${latexLine(data.q3m, 0)}, find \\(y\\) when \\(x=${data.q3x}\\).`,
           c:[`\\(${data.q3m + data.q3x}\\)`,`\\(${q3Value}\\)`,`\\(${Math.abs(data.q3m - data.q3x)}\\)`,`\\(${data.q3m}${data.q3x}\\)`],
           a:1
         },
         {
           topic:"Graph Slope",
-          q:"The graph shows \\(f(x)=mx+b\\). Find the slope.",
+          q:"Find the slope of the line shown below.",
           graph:{kind:"line", m:data.q4m, b:data.q4b},
-          c:[`\\(${data.q4m}\\)`,`\\(${data.q4b}\\)`,`\\(${-data.q4m}\\)`,`\\(${-data.q4b}\\)`],
+          c:[`\\(${slopeLatex(data.q4m)}\\)`,`\\(${slopeLatex(data.q4b)}\\)`,`\\(${slopeLatex(-data.q4m)}\\)`,`\\(${slopeLatex(-data.q4b)}\\)`],
           a:0
         },
         {
           topic:"Function Value",
-          q:`Given \\(f(x)=${data.q5m}x${data.q5b >= 0 ? "+" + data.q5b : data.q5b}\\), find \\(f(${data.q5x})\\).`,
+          q:`Given ${latexFunction(data.q5m, data.q5b)}, find \\(f(${data.q5x})\\).`,
           c:[`\\(${q5Value - 6}\\)`,`\\(${q5Value + 3}\\)`,`\\(${q5Value - 2}\\)`,`\\(${q5Value}\\)`],
           a:3
         },
@@ -1261,8 +1334,8 @@
           q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
           graph:{kind:"multiLine", lines:[
             {label:"A", m:1, labelX:4},
-            {label:"B", m:0.5, labelX:4},
-            {label:"C", m:-0.5, labelX:-4},
+            {label:"B", m:1/2, labelX:4},
+            {label:"C", m:-1/2, labelX:-4},
             {label:"D", m:2, labelX:2}
           ]},
           c:["Line A","Line B","Line C","Line D"],
@@ -1270,15 +1343,15 @@
         },
         {
           topic:"Slope",
-          q:`Find the slope of \\(y=${data.q7m}x${data.q7b >= 0 ? "+" + data.q7b : data.q7b}\\).`,
-          c:[`\\(${data.q7m}\\)`,`\\(${-data.q7m}\\)`,`\\(${data.q7b}\\)`,`\\(${-data.q7b}\\)`],
+          q:`Find the slope of ${latexLine(data.q7m, data.q7b)}.`,
+          c:[`\\(${slopeLatex(data.q7m)}\\)`,`\\(${slopeLatex(-data.q7m)}\\)`,`\\(${slopeLatex(data.q7b)}\\)`,`\\(${slopeLatex(-data.q7b)}\\)`],
           a:0
         },
         {
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
           graph:{kind:"line", m:graphM(data.q8m), b:data.q8b},
-          c:[latexLine(data.q8m, data.q8b), latexLine(-graphM(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(graphM(data.q8m) + 2, data.q8b)],
+          c:[latexLine(data.q8m, data.q8b), latexLine(oppositeSlope(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(graphM(data.q8m) + 2, data.q8b)],
           a:0
         },
         {
@@ -1288,34 +1361,34 @@
           a:1
         },
         {
-          topic:"Equation",
-          q:`Which equation has slope \\(${data.q10m}\\) and \\(y\\)-intercept \\(${data.q10b}\\)?`,
-          c:[latexLine(data.q10b, data.q10m), latexLine(data.q10m, data.q10b), latexLine(-data.q10m, data.q10b), latexLine(data.q10m, -data.q10b)],
-          a:1
+          topic:"Slope",
+          q:`Find the slope of the line through \\(${data.q10p1}\\) and \\(${data.q10p2}\\).`,
+          c:[`\\(${slopeLatex(data.q10ans)}\\)`,"\\(1\\)","\\(-2\\)","\\(4\\)"],
+          a:0
         },
         {
           topic:"Equation",
-          q:`Which equation has slope \\(${data.q11m}\\) and \\(y\\)-intercept \\(${data.q11b}\\)?`,
+          q:`Which equation has slope \\(${slopeLatex(data.q11m)}\\) and \\(y\\)-intercept \\(${data.q11b}\\)?`,
           c:[latexLine(-data.q11m, data.q11b), latexLine(data.q11m, data.q11b), latexLine(data.q11b, data.q11m), latexLine(-1, Math.abs(data.q11m))],
           a:1
         },
         {
           topic:"Equation",
-          q:`Which equation has slope \\(${data.q12m}\\) and \\(y\\)-intercept \\(${data.q12b}\\)?`,
-          c:[latexLine(data.q12m, data.q12b), latexLine(data.q12m.startsWith("-") ? data.q12m.replace("-", "") : "-" + data.q12m, data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
+          q:`Which equation has slope \\(${slopeLatex(data.q12m)}\\) and \\(y\\)-intercept \\(${data.q12b}\\)?`,
+          c:[latexLine(data.q12m, data.q12b), latexLine(oppositeSlope(data.q12m), data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
           a:0
         },
         {
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
           graph:{kind:"line", m:graphM(data.q13m), b:data.q13b},
-          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === 1.5 ? "\\frac{2}{3}" : data.q13m === -2 ? "\\frac{1}{2}" : "-\\frac{1}{2}", data.q13b), latexLine(-graphM(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
+          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === "\\frac{3}{2}" ? "\\frac{2}{3}" : data.q13m === -2 ? "\\frac{1}{2}" : "\\frac{3}{2}", data.q13b), latexLine(oppositeSlope(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
           a:0
         },
         {
           topic:"Slope",
           q:`Find the slope of the line through \\(${data.q14p1}\\) and \\(${data.q14p2}\\).`,
-          c:[`\\(${data.q14ans}\\)`,"\\(3\\)","\\(6\\)","\\(-2\\)"],
+          c:[`\\(${slopeLatex(data.q14ans)}\\)`,"\\(3\\)","\\(6\\)","\\(-2\\)"],
           a:0
         },
         {
@@ -1326,38 +1399,38 @@
         },
         {
           topic:"Graph Slope",
-          q:"The graph shows \\(f(x)=mx+b\\). Find the slope.",
+          q:"Consider the graph of the line shown below. Calculate the slope.",
           graph:{kind:"line", m:data.q16m, b:data.q16b},
-          c:[`\\(${data.q16m}\\)`,`\\(${-data.q16m}\\)`,`\\(${data.q16b}\\)`,`\\(${-data.q16b}\\)`],
+          c:[`\\(${slopeLatex(data.q16m)}\\)`,`\\(${slopeLatex(-data.q16m)}\\)`,`\\(${slopeLatex(data.q16b)}\\)`,`\\(${slopeLatex(-data.q16b)}\\)`],
           a:0
         },
         {
           topic:"Concept",
-          q:`For \\(y=${data.q17m}x${data.q17b >= 0 ? "+" + data.q17b : data.q17b}\\), where does the graph cross the \\(y\\)-axis?`,
+          q:`For ${latexLine(data.q17m, data.q17b)}, where does the graph cross the \\(y\\)-axis?`,
           c:[`\\((${data.q17b},0)\\)`,`\\((0,${data.q17m})\\)`,`\\((0,${data.q17b})\\)`,`\\((${data.q17m},${data.q17b})\\)`],
           a:2
         },
         {
           topic:"Function Value",
-          q:"Given \\(f(x)=4x-5\\), find \\(f(3)\\).",
-          c:["\\(7\\)","\\(12\\)","\\(-7\\)","\\(17\\)"],
+          q:`Given ${latexFunction(data.q18m, data.q18b)}, find \\(f(${data.q18a})-f(${data.q18c})\\).`,
+          c:[`\\(${q18Value}\\)`,`\\(${data.q18m * (data.q18a + data.q18c)}\\)`,`\\(${-q18Value}\\)`,`\\(${q18Value + data.q18b}\\)`],
           a:0
         },
         {
           topic:"Affine Functions",
-          q:"Check all equations that are affine and not lineal. Here, affine means \\(y=ax+b\\), where \\(a\\ne0\\) and \\(b\\ne0\\).",
+          q:"Check all equations that are affine functions.",
           multi:true,
           c:[
             "\\(y=2x+3\\)",
             "\\(y=-x+5\\)",
-            "\\(y=\\frac{1}{2}x-4\\)",
+            "\\(y=\\frac{x}{2}-4\\)",
             "\\(y=4x\\)",
             "\\(y=x^2+1\\)",
             "\\(y=\\frac{5}{x}\\)",
             "\\(y=-4x-7\\)",
             "\\(y=3\\)",
             "\\(x=4\\)",
-            "\\(y=0.25x+1\\)"
+            "\\(y=\\frac{x}{4}+1\\)"
           ],
           a:[0,1,2,6,9]
         },
@@ -1377,7 +1450,7 @@
           topic:"Graph Slope",
           q:"Find the slope of the line shown.",
           graph:{kind:"line", m:data.q22m, b:data.q22b},
-          c:[`\\(${data.q22m}\\)`,`\\(${1/data.q22m}\\)`,`\\(${-data.q22m}\\)`,`\\(${-1/data.q22m}\\)`],
+          c:[`\\(${slopeLatex(data.q22m)}\\)`,`\\(${slopeLatex(1/data.q22m)}\\)`,`\\(${slopeLatex(-data.q22m)}\\)`,`\\(${slopeLatex(-1/data.q22m)}\\)`],
           a:0
         },
         {
@@ -1389,15 +1462,15 @@
         },
         {
           topic:"Equation",
-          q:`Which equation has slope \\(${data.q24m}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
-          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{4}{5}", data.q24b), latexLine(data.q24m.startsWith("-") ? data.q24m.replace("-", "") : "-" + data.q24m, data.q24b), latexLine(data.q24m, -data.q24b)],
+          q:`Which equation has slope \\(${slopeLatex(data.q24m)}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
+          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{4}{5}", data.q24b), latexLine(oppositeSlope(data.q24m), data.q24b), latexLine(data.q24m, -data.q24b)],
           a:0
         },
         {
           topic:"Graph Slope",
           q:"Find the slope of the line shown.",
           graph:{kind:"line", m:data.q25m, b:data.q25b},
-          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${q25Extra}\\)`],
+          c:[`\\(${slopeLatex(data.q25m)}\\)`,`\\(${slopeLatex(-data.q25m)}\\)`,`\\(0\\)`,`\\(${slopeLatex(q25Extra)}\\)`],
           a:0
         },
         {
@@ -1416,14 +1489,14 @@
         {
           topic:"Model",
           q:"A taxi costs \\(\\$3\\) to start and \\(\\$2\\) per kilometer. Which equation gives the cost \\(C\\)?",
-          c:["\\(C=3x+2\\)","\\(C=2x+3\\)","\\(C=5x\\)","\\(C=\\frac{3}{2}x\\)"],
+          c:["\\(C=3x+2\\)","\\(C=2x+3\\)","\\(C=5x\\)","\\(C=\\frac{3x}{2}\\)"],
           a:1
         },
         {
           topic:"Graph Details",
           q:"Find the slope and the \\(y\\)-intercept of the line shown.",
           graph:{kind:"line", m:data.q29m, b:data.q29b},
-          c:[`Slope \\(=${data.q29m}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29b}\\), \\(y\\)-intercept \\(=${data.q29m}\\)`,`Slope \\(=${-data.q29m}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29m}\\), \\(y\\)-intercept \\(=${-data.q29b}\\)`],
+          c:[`Slope \\(=${slopeLatex(data.q29m)}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${data.q29b}\\), \\(y\\)-intercept \\(=${slopeLatex(data.q29m)}\\)`,`Slope \\(=${slopeLatex(-data.q29m)}\\), \\(y\\)-intercept \\(=${data.q29b}\\)`,`Slope \\(=${slopeLatex(data.q29m)}\\), \\(y\\)-intercept \\(=${-data.q29b}\\)`],
           a:0
         },
         {
@@ -1431,8 +1504,8 @@
           q:`In the graph, which line has slope \\(${data.q30target}\\)?`,
           graph:{kind:"multiLine", lines:[
             {label:"A", m:1, labelX:4},
-            {label:"B", m:0.5, labelX:4},
-            {label:"C", m:-0.5, labelX:-4},
+            {label:"B", m:1/2, labelX:4},
+            {label:"C", m:-1/2, labelX:-4},
             {label:"D", m:2, labelX:2}
           ]},
           c:["Line A","Line B","Line C","Line D"],
@@ -1440,7 +1513,8 @@
         }
       ];
 
-      return randomizeChoices(questions, attempt);
+      const questionsWithRandomChoices = randomizeChoices(questions, attempt);
+      return randomizeQuestionOrder(questionsWithRandomChoices, attempt);
     }
 
     function seededRandom(seed){
@@ -1493,12 +1567,26 @@
       return arr;
     }
 
+
+    function randomizeQuestionOrder(questions, attempt){
+      const rand = seededRandom(909090 + attempt * 7777);
+      const arr = questions.map((item, originalIndex) => ({...item, originalIndex}));
+
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(rand() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      return arr;
+    }
+
     const maxAttempts = 3;
     let currentAttempt = 1;
     let testQuestions = makeQuestionSet(currentAttempt);
     let answers = Array(testQuestions.length).fill(null);
     let firstName = "";
     let lastName = "";
+    let schoolEmail = "";
     let latestScore = 0;
     let latestPercent = 0;
 
@@ -1507,6 +1595,7 @@
     const startBtn = document.getElementById("startBtn");
     const firstInput = document.getElementById("firstName");
     const lastInput = document.getElementById("lastName");
+    const schoolEmailInput = document.getElementById("schoolEmail");
     const studentName = document.getElementById("studentName");
     const progressText = document.getElementById("progressText");
     const questionList = document.getElementById("questionList");
@@ -1634,6 +1723,7 @@
 
           <div class="print-info">
             <div><strong>Student:</strong> ${firstName} ${lastName}</div>
+            <div><strong>Email:</strong> ${schoolEmail}</div>
             <div><strong>Date:</strong> ${dateText}</div>
             <div><strong>Attempt:</strong> ${currentAttempt} of ${maxAttempts}</div>
             <div><strong>Score:</strong> ${latestScore} / ${testQuestions.length}</div>
@@ -1679,7 +1769,9 @@
       if(saveResult.saved){
         saveStatus.textContent = "Result saved to Supabase.";
       }else if(supabaseEnabled){
-        saveStatus.textContent = "Result was not saved. Check Supabase settings and table columns.";
+        saveStatus.textContent = saveResult.reason
+          ? `Result was not saved: ${saveResult.reason}`
+          : "Result was not saved. Check Supabase settings and table columns.";
       }
     }
 
@@ -1725,13 +1817,19 @@
     startBtn.onclick = () => {
       firstName = firstInput.value.trim().toUpperCase();
       lastName = lastInput.value.trim().toUpperCase();
+      schoolEmail = schoolEmailInput.value.trim().toLowerCase();
 
-      if(!firstName || !lastName){
-        alert("Please enter your first name and last name before starting.");
+      if(!firstName || !lastName || !schoolEmail){
+        alert("Please enter your first name, last name, and email before starting.");
         return;
       }
 
-      studentName.textContent = `Name: ${lastName}, ${firstName} | Attempt ${currentAttempt} of ${maxAttempts}`;
+      if(!schoolEmail.includes("@") || !schoolEmail.includes(".")){
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      studentName.textContent = `Name: ${lastName}, ${firstName} | Email: ${schoolEmail} | Attempt ${currentAttempt} of ${maxAttempts}`;
       coverScreen.classList.remove("active");
       testScreen.classList.add("active");
       renderQuestions();
@@ -1763,7 +1861,7 @@
       currentAttempt++;
       testQuestions = makeQuestionSet(currentAttempt);
       answers = Array(testQuestions.length).fill(null);
-      studentName.textContent = `Name: ${lastName}, ${firstName} | Attempt ${currentAttempt} of ${maxAttempts}`;
+      studentName.textContent = `Name: ${lastName}, ${firstName} | Email: ${schoolEmail} | Attempt ${currentAttempt} of ${maxAttempts}`;
       resultModal.classList.remove("show");
       renderQuestions();
       window.scrollTo({top:0, behavior:"smooth"});
@@ -1771,4 +1869,3 @@
   </script>
 </body>
 </html>
-
