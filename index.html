@@ -1199,9 +1199,9 @@
 
       function latexLine(m, b){
         const mText = formatCoefficient(m);
-        if(b === 0) return `\(y=${mText}x\)`;
-        if(b > 0) return `\(y=${mText}x+${b}\)`;
-        return `\(y=${mText}x${b}\)`;
+        if(b === 0) return `\\(y=${mText}x\\)`;
+        if(b > 0) return `\\(y=${mText}x+${b}\\)`;
+        return `\\(y=${mText}x${b}\\)`;
       }
 
       function graphM(m){
@@ -1221,6 +1221,7 @@
       const q9Text = `\\(A=${data.q9rate}t+${data.q9start}\\)`;
       const q10Correct = latexLine(data.q10m, data.q10b).replace("\\(y=", "").replace("\\)", "");
       const q11Correct = latexLine(data.q11m, data.q11b).replace("\\(y=", "").replace("\\)", "");
+      const q25Extra = [data.q25b, data.q25m + data.q25b, data.q25m - data.q25b, data.q25b - data.q25m, data.q25b + 2].find(v => ![data.q25m, -data.q25m, 0].includes(v));
 
       const questions = [
         {
@@ -1338,9 +1339,9 @@
         },
         {
           topic:"Function Value",
-          q:"Given \\(f(x)=-3x+10\\), find \\(f(-3)\\).",
-          c:["\\(-19\\)","\\(1\\)","\\(13\\)","\\(19\\)"],
-          a:3
+          q:"Given \\(f(x)=4x-5\\), find \\(f(3)\\).",
+          c:["\\(7\\)","\\(12\\)","\\(-7\\)","\\(17\\)"],
+          a:0
         },
         {
           topic:"Affine Functions",
@@ -1389,14 +1390,14 @@
         {
           topic:"Equation",
           q:`Which equation has slope \\(${data.q24m}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
-          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{3}{2}", data.q24b), latexLine(data.q24m.startsWith("-") ? data.q24m.replace("-", "") : "-" + data.q24m, data.q24b), latexLine(data.q24m, -data.q24b)],
+          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{4}{5}", data.q24b), latexLine(data.q24m.startsWith("-") ? data.q24m.replace("-", "") : "-" + data.q24m, data.q24b), latexLine(data.q24m, -data.q24b)],
           a:0
         },
         {
           topic:"Graph Slope",
           q:"Find the slope of the line shown.",
           graph:{kind:"line", m:data.q25m, b:data.q25b},
-          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${data.q25m === data.q25b ? data.q25m + data.q25b : data.q25b}\\)`],
+          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${q25Extra}\\)`],
           a:0
         },
         {
@@ -1770,3 +1771,4 @@
   </script>
 </body>
 </html>
+
