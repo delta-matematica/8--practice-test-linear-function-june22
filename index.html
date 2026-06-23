@@ -353,6 +353,11 @@
       border-color:var(--blue);
     }
 
+    .choice,
+    .choice span{
+      font-weight:400;
+    }
+
     .choice input{
       width:18px;
       height:18px;
@@ -1186,11 +1191,17 @@
         }
       }[attempt];
 
+      function formatCoefficient(m){
+        if(m === 1 || m === "1") return "";
+        if(m === -1 || m === "-1") return "-";
+        return typeof m === "number" ? String(m) : m;
+      }
+
       function latexLine(m, b){
-        const mText = typeof m === "number" ? String(m) : m;
-        if(b === 0) return `\\(y=${mText}x\\)`;
-        if(b > 0) return `\\(y=${mText}x+${b}\\)`;
-        return `\\(y=${mText}x${b}\\)`;
+        const mText = formatCoefficient(m);
+        if(b === 0) return `\(y=${mText}x\)`;
+        if(b > 0) return `\(y=${mText}x+${b}\)`;
+        return `\(y=${mText}x${b}\)`;
       }
 
       function graphM(m){
@@ -1211,7 +1222,7 @@
       const q10Correct = latexLine(data.q10m, data.q10b).replace("\\(y=", "").replace("\\)", "");
       const q11Correct = latexLine(data.q11m, data.q11b).replace("\\(y=", "").replace("\\)", "");
 
-      return [
+      const questions = [
         {
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
@@ -1266,7 +1277,7 @@
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
           graph:{kind:"line", m:graphM(data.q8m), b:data.q8b},
-          c:[latexLine(data.q8m, data.q8b), latexLine(-graphM(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(2, data.q8b)],
+          c:[latexLine(data.q8m, data.q8b), latexLine(-graphM(data.q8m), data.q8b), latexLine(data.q8m, -data.q8b), latexLine(graphM(data.q8m) + 2, data.q8b)],
           a:0
         },
         {
@@ -1290,14 +1301,14 @@
         {
           topic:"Equation",
           q:`Which equation has slope \\(${data.q12m}\\) and \\(y\\)-intercept \\(${data.q12b}\\)?`,
-          c:[latexLine(data.q12m, data.q12b), latexLine(data.q12m.replace("-", ""), data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
+          c:[latexLine(data.q12m, data.q12b), latexLine(data.q12m.startsWith("-") ? data.q12m.replace("-", "") : "-" + data.q12m, data.q12b), latexLine("-\\frac{3}{2}", data.q12b), latexLine(data.q12m, -data.q12b)],
           a:0
         },
         {
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
           graph:{kind:"line", m:graphM(data.q13m), b:data.q13b},
-          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === 1.5 ? "\\frac{2}{3}" : data.q13m === -2 ? "2" : "-\\frac{1}{2}", data.q13b), latexLine(-graphM(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
+          c:[latexLine(data.q13m, data.q13b), latexLine(data.q13m === 1.5 ? "\\frac{2}{3}" : data.q13m === -2 ? "\\frac{1}{2}" : "-\\frac{1}{2}", data.q13b), latexLine(-graphM(data.q13m), data.q13b), latexLine(data.q13m, -data.q13b)],
           a:0
         },
         {
@@ -1372,20 +1383,20 @@
           topic:"Graph Equation",
           q:"Find the equation of the line shown.",
           graph:{kind:"line", m:data.q23m, b:data.q23b},
-          c:[latexLine(data.q23m, data.q23b), latexLine(data.q23m, -data.q23b), latexLine(-data.q23m, data.q23b), latexLine(data.q23m + 1, data.q23b)],
+          c:[latexLine(data.q23m, data.q23b), latexLine(data.q23m, data.q23b === 0 ? 2 : -data.q23b), latexLine(-data.q23m, data.q23b), latexLine(data.q23m + 1, data.q23b)],
           a:0
         },
         {
           topic:"Equation",
           q:`Which equation has slope \\(${data.q24m}\\) and \\(y\\)-intercept \\(${data.q24b}\\)?`,
-          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{1}{2}", data.q24b), latexLine("-" + data.q24m.replace("-", ""), data.q24b), latexLine(data.q24m, -data.q24b)],
+          c:[latexLine(data.q24m, data.q24b), latexLine(data.q24m === "\\frac{3}{4}" ? "\\frac{4}{3}" : "\\frac{3}{2}", data.q24b), latexLine(data.q24m.startsWith("-") ? data.q24m.replace("-", "") : "-" + data.q24m, data.q24b), latexLine(data.q24m, -data.q24b)],
           a:0
         },
         {
           topic:"Graph Slope",
           q:"Find the slope of the line shown.",
           graph:{kind:"line", m:data.q25m, b:data.q25b},
-          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${data.q25b}\\)`],
+          c:[`\\(${data.q25m}\\)`,`\\(${-data.q25m}\\)`,`\\(0\\)`,`\\(${data.q25m === data.q25b ? data.q25m + data.q25b : data.q25b}\\)`],
           a:0
         },
         {
@@ -1427,6 +1438,44 @@
           a: data.q30target === "2" ? 3 : (data.q30target === "-\\frac{1}{2}" ? 2 : 1)
         }
       ];
+
+      return randomizeChoices(questions, attempt);
+    }
+
+    function seededRandom(seed){
+      let value = seed;
+      return function(){
+        value = (value * 9301 + 49297) % 233280;
+        return value / 233280;
+      };
+    }
+
+    function randomizeChoices(questions, attempt){
+      const desiredSingleAnswerPositions = [1, 2, 3, 0];
+
+      return questions.map((question, qIndex) => {
+        const choices = question.c.map((text, oldIndex) => ({ text, oldIndex }));
+        const rand = seededRandom(20260622 + attempt * 1000 + qIndex * 97);
+
+        for(let i = choices.length - 1; i > 0; i--){
+          const j = Math.floor(rand() * (i + 1));
+          [choices[i], choices[j]] = [choices[j], choices[i]];
+        }
+
+        if(Array.isArray(question.a)){
+          const newAnswers = question.a.map(oldAnswer => choices.findIndex(choice => choice.oldIndex === oldAnswer)).sort((a,b) => a-b);
+          return { ...question, c: choices.map(choice => choice.text), a: newAnswers };
+        }
+
+        const currentCorrectIndex = choices.findIndex(choice => choice.oldIndex === question.a);
+        const desiredIndex = desiredSingleAnswerPositions[(qIndex + attempt - 1) % desiredSingleAnswerPositions.length] % choices.length;
+
+        if(currentCorrectIndex !== desiredIndex){
+          [choices[currentCorrectIndex], choices[desiredIndex]] = [choices[desiredIndex], choices[currentCorrectIndex]];
+        }
+
+        return { ...question, c: choices.map(choice => choice.text), a: desiredIndex };
+      });
     }
 
     function seededShuffle(array){
